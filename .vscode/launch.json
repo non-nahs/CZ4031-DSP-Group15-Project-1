@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/joedav98/Documents/GitHub/CZ4031-Database-System-Principles-Group-Project",
+      "program": "/Users/joedav98/Documents/GitHub/CZ4031-Database-System-Principles-Group-Project/build/Debug/outDebug"
+    }
+  ]
+}
