@@ -21,8 +21,9 @@ void BTree::insert(float k, Record* rptr) {
     }
 }
 
-Node* BTree::search(float k) {
-    return (root == nullptr) ? nullptr : root->search(k);
+void BTree::search(int min, int max) {
+    if (max == -1) max = min;
+    root->search(min, max);
 }
 
 void BTree::printTree() {

@@ -17,7 +17,7 @@ public:
 class Node {
 public:
     int n;
-    vector<float> keys;
+    vector<int> keys;
     vector<Node*> child_ptr;
     vector<Record*> record_ptr;
     bool leaf;
@@ -25,11 +25,11 @@ public:
     Node* ptr2next;
 
     Node(int _n, bool _leaf = false, Node* _ptr2next = NULL);
-    Node* insert_record(float k, Record* rptr);
-    float smallest();
-    int split_check_duplicates(vector<float> keys);
-    void printRecord(Record* record);
-    Node* search(float k);
+    Node* insert_record(int k, Record* rptr);
+    int smallest();
+    int split_check_duplicates(vector<int> keys);
+    bool printRecord(int min, int max);
+    void search(int min, int max = -1);
 };
 
 #endif // NODE_H

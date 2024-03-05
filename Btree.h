@@ -14,7 +14,7 @@ public:
 
     BTree(int _t);
     void insert(float k, Record* rptr);
-    Node* search(float k);
+    void search(int min, int max = -1);
     void printTree();
 private:
     void printNode(Node* node, int level);

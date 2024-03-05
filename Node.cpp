@@ -20,13 +20,13 @@ Node::Node(int _n, bool _leaf, Node* _ptr2next) {
 }
 
 // returns node pointer if a new node is created. otherwise, returns NULL
-Node* Node::insert_record(float k, Record* rptr) {
+Node* Node::insert_record(int k, Record* rptr) {
     // terminal state: leaf node
     if (leaf) {
         // check if node is full, need to split
         if (num_keys == n) {
             // create temporary vectors to hold keys and pointers
-            vector<float> temp_keys = keys;
+            vector<int> temp_keys = keys;
             temp_keys.push_back(k);
             vector<Record*> temp_record_ptr = record_ptr;
             temp_record_ptr.push_back(rptr);
@@ -108,7 +108,7 @@ Node* Node::insert_record(float k, Record* rptr) {
             // current node is full, need to split
             if (num_keys == n) {
                 // create temporary vectors to hold keys and child pointers
-                vector<float> temp_keys = keys;
+                vector<int> temp_keys = keys;
                 temp_keys.push_back(new_node->smallest());
                 vector<Node*> temp_child_ptr = child_ptr;
                 temp_child_ptr.push_back(new_node);
@@ -180,7 +180,7 @@ Node* Node::insert_record(float k, Record* rptr) {
     }
 }
 
-float Node::smallest() {
+int Node::smallest() {
     if (!leaf) {
         return child_ptr.at(0)->smallest();
     }
@@ -189,7 +189,7 @@ float Node::smallest() {
     }
 }
 
-int Node::split_check_duplicates(vector<float> keys) {
+int Node::split_check_duplicates(vector<int> keys) {
     int size = keys.size();
     int split_index = size - (size / 2);
     for (int step = 0; step < size - 1; step++) {
@@ -210,29 +210,36 @@ int Node::split_check_duplicates(vector<float> keys) {
     return -1;
 }
 
-void Node::printRecord(Record* record) {
-    cout << "tconst: " << record->tconst;
-    cout << ", average rating: " << record->averageRating;
-    cout << ", numVotes: " << record->numVotes << endl;
+bool Node::printRecord(int min, int max) {
+    bool printed = false;
+    for (int i = 0; i < num_keys; i++) {
+        if (keys[i] >= min && keys[i] <= max) {
+            cout << "tconst: " << record_ptr[i]->tconst;
+            cout << ", average rating: " << record_ptr[i]->averageRating;
+            cout << ", numVotes: " << record_ptr[i]->numVotes << endl;
+            printed = true;
+        }
+        else if (keys[i] > max)
+            return printed;
+    }
+    // keep calling next until they return
+    if (ptr2next != NULL)
+        printed = ptr2next->printRecord(min, max);
+    return printed;
 }
 
-Node* Node::search(float k) {
+void Node::search(int min, int max) {
     int i = 0;
     if (leaf) {
-        while (i < num_keys && k > keys[i]) {
-            i++;
+        if (!printRecord(min, max)) {
+            cout << "Record not found" << endl;
         }
-        if (k == keys[i]) {
-            printRecord(record_ptr[i]);
-            return new Node(3);
-        }
-        else return NULL;
     }
     
     else {
-        while (i < num_keys && k >= keys[i]) {
+        while (i < num_keys && min >= keys[i]) {
             i++;
         }
-        return child_ptr[i]->search(k);
+        return child_ptr[i]->search(min, max);
     }
 }
