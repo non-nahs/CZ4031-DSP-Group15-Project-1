@@ -2,8 +2,8 @@
 using namespace std;
 
 
-BTree::BTree(int _t) {
-    root = new Node(_t);
+BTree::BTree(int _n) {
+    root = new Node(_n);
     root->leaf = true;
 }
 
@@ -16,8 +16,7 @@ void BTree::insert(float k, Record* rptr) {
         new_root->child_ptr.push_back(root);
         new_root->child_ptr.push_back(new_node);
         new_root->keys.push_back(new_node->smallest());
-
-        new_root->n = 1;
+        new_root->num_keys = 1;
         root = new_root;
     }
 }
@@ -34,13 +33,13 @@ void BTree::printNode(Node* node, int level) {
     if (node != nullptr) {
         // Print the keys of the current node
         cout << "Level " << level << ": ";
-        for (int i = 0; i < node->n; ++i) {
+        for (int i = 0; i < node->num_keys; ++i) {
             cout << node->keys[i] << " ";
         }
         cout << endl;
 
         // Recursively print the child nodes
-        for (int i = 0; i <= node->n; ++i) {
+        for (int i = 0; i <= node->num_keys; ++i) {
             printNode(node->child_ptr[i], level + 1);
         }
     }

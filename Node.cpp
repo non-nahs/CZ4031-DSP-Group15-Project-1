@@ -112,6 +112,7 @@ Node* Node::insert_record(float k, Record* rptr) {
                     if (child_ptr.at(0)->keys.at(0) > keys.at(0)) {
                         keys.at(0) = child_ptr[0]->smallest();
                         swap(child_ptr.at(0), child_ptr.at(1));
+                        // update the smallest value upwards
                     }
                 }
 
@@ -126,7 +127,7 @@ Node* Node::insert_record(float k, Record* rptr) {
                 num_keys = first_half_keys;
 
                 // create a new node for the second half of keys and child pointers
-                Node* new_node = new Node(t, leaf, ptr2next);
+                Node* new_node = new Node(n, leaf, ptr2next);
 
                 new_node->keys.resize(half_size);
                 copy(temp_keys.begin() + first_half_keys + 1, temp_keys.end(), new_node->keys.begin());
@@ -141,7 +142,7 @@ Node* Node::insert_record(float k, Record* rptr) {
 
             // current node has space for the new node
             else {
-                keys.push_back(new_node->keys[0]);
+                keys.push_back(new_node->smallest());
                 child_ptr.push_back(new_node);
 
                 num_keys++;
