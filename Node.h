@@ -16,17 +16,18 @@ public:
 
 class Node {
 public:
-    int t;
+    int n;
     vector<float> keys;
     vector<Node*> child_ptr;
     vector<Record*> record_ptr;
     bool leaf;
-    int n;
+    int num_keys;
     Node* ptr2next;
 
-    Node(int _t, bool _leaf = false, Node* _ptr2next = NULL);
+    Node(int _n, bool _leaf = false, Node* _ptr2next = NULL);
     Node* insert_record(float k, Record* rptr);
     float smallest();
+    void printRecord(Record* record);
     Node* search(float k);
 };
 

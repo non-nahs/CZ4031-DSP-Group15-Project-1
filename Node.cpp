@@ -9,16 +9,14 @@ Record::Record(string _tconst, float _averageRating, int _numVotes) {
     numVotes = _numVotes;
 }
 
-Node::Node(int _t, bool _leaf, Node* _ptr2next) {
-    t = _t;
+Node::Node(int _n, bool _leaf, Node* _ptr2next) {
+    n = _n;
     ptr2next = _ptr2next;
     leaf = _leaf;
-    n = 0;
-    keys.reserve(t);
-    child_ptr.reserve(t+1);
-    record_ptr.reserve(t);
-    // keys.resize(MAX_KEYS);
-    // child_ptr.resize(MAX_KEYS + 1);
+    num_keys = 0;
+    keys.reserve(n);
+    child_ptr.reserve(n+1);
+    record_ptr.reserve(n);
 }
 
 // returns node pointer if a new node is created. otherwise, returns NULL
@@ -26,7 +24,7 @@ Node* Node::insert_record(float k, Record* rptr) {
     // terminal state: leaf node
     if (leaf) {
         // check if node is full, need to split
-        if (n == t) {
+        if (num_keys == n) {
             // create temporary vectors to hold keys and pointers
             vector<float> temp_keys = keys;
             temp_keys.push_back(k);
@@ -34,7 +32,7 @@ Node* Node::insert_record(float k, Record* rptr) {
             temp_record_ptr.push_back(rptr);
 
             // ensure keys are sorted
-            int i = n;
+            int i = num_keys;
             while (i > 0 && temp_keys[i] < temp_keys[i-1]) {
                 swap(temp_keys[i], temp_keys[i - 1]);
                 swap(temp_record_ptr[i], temp_record_ptr[i-1]);
@@ -43,21 +41,21 @@ Node* Node::insert_record(float k, Record* rptr) {
             size_t half_size = temp_keys.size() / 2;
 
             // update current node with first half of keys and record pointers
-            int num_keys = temp_keys.size() - half_size;
-            keys.resize(num_keys);
-            copy(temp_keys.begin(), temp_keys.begin() + num_keys, keys.begin());
-            record_ptr.resize(num_keys);
-            copy(temp_record_ptr.begin(), temp_record_ptr.begin() + num_keys, record_ptr.begin());
-            n = num_keys;
+            int first_half_keys = temp_keys.size() - half_size;
+            keys.resize(first_half_keys);
+            copy(temp_keys.begin(), temp_keys.begin() + first_half_keys, keys.begin());
+            record_ptr.resize(first_half_keys);
+            copy(temp_record_ptr.begin(), temp_record_ptr.begin() + first_half_keys, record_ptr.begin());
+            num_keys = first_half_keys;
 
             // create a new node for the second half of keys and record pointers
-            Node* new_node = new Node(t, leaf=true, ptr2next);
+            Node* new_node = new Node(n, leaf=true, ptr2next);
 
             new_node->keys.resize(half_size);
-            copy(temp_keys.begin() + num_keys, temp_keys.end(), new_node->keys.begin());
+            copy(temp_keys.begin() + first_half_keys, temp_keys.end(), new_node->keys.begin());
             new_node->record_ptr.resize(half_size);
-            copy(temp_record_ptr.begin() + num_keys, temp_record_ptr.end(), new_node->record_ptr.begin());
-            new_node->n = half_size;
+            copy(temp_record_ptr.begin() + first_half_keys, temp_record_ptr.end(), new_node->record_ptr.begin());
+            new_node->num_keys = half_size;
 
             // update next pointer for current node
             ptr2next = new_node;
@@ -69,9 +67,9 @@ Node* Node::insert_record(float k, Record* rptr) {
             keys.push_back(k);
             record_ptr.push_back(rptr);
 
-            n++;
+            num_keys++;
             // sort inserted key into position
-            int i = n - 1;
+            int i = num_keys - 1;
             while (i > 0 && keys[i] < keys[i-1]) {
                 swap(keys[i], keys[i - 1]);
                 swap(record_ptr[i], record_ptr[i - 1]);
@@ -86,7 +84,7 @@ Node* Node::insert_record(float k, Record* rptr) {
         // recursive case for internal nodes
         // find correct child pointer
         int i = 0;
-        while (i < n && k >= keys[i]) {
+        while (i < num_keys && k >= keys[i]) {
             i++;
         }
         // recursive call. returns pointer if a node is created, otherwise returns NULL
@@ -95,7 +93,7 @@ Node* Node::insert_record(float k, Record* rptr) {
         // if a new node is created by splitting child nodes
         if (new_node) {
             // current node is full, need to split
-            if (n == t) {
+            if (num_keys == n) {
                 // create temporary vectors to hold keys and child pointers
                 vector<float> temp_keys = keys;
                 temp_keys.push_back(new_node->smallest());
@@ -120,21 +118,21 @@ Node* Node::insert_record(float k, Record* rptr) {
                 size_t half_size = (temp_keys.size() - 1)/ 2;
 
                 // update current node with first half of keys and child pointers
-                int num_keys = temp_keys.size() - 1 - half_size;
-                keys.resize(num_keys);
-                copy(temp_keys.begin(), temp_keys.begin() + num_keys, keys.begin());
-                child_ptr.resize(num_keys + 1);
-                copy(temp_child_ptr.begin(), temp_child_ptr.begin() + num_keys + 1, child_ptr.begin());
-                n = num_keys;
+                int first_half_keys = temp_keys.size() - 1 - half_size;
+                keys.resize(first_half_keys);
+                copy(temp_keys.begin(), temp_keys.begin() + first_half_keys, keys.begin());
+                child_ptr.resize(first_half_keys + 1);
+                copy(temp_child_ptr.begin(), temp_child_ptr.begin() + first_half_keys + 1, child_ptr.begin());
+                num_keys = first_half_keys;
 
                 // create a new node for the second half of keys and child pointers
                 Node* new_node = new Node(t, leaf, ptr2next);
 
                 new_node->keys.resize(half_size);
-                copy(temp_keys.begin() + num_keys + 1, temp_keys.end(), new_node->keys.begin());
+                copy(temp_keys.begin() + first_half_keys + 1, temp_keys.end(), new_node->keys.begin());
                 new_node->child_ptr.resize(half_size + 1);
-                copy(temp_child_ptr.begin() + num_keys + 1, temp_child_ptr.end(), new_node->child_ptr.begin());
-                new_node->n = half_size;
+                copy(temp_child_ptr.begin() + first_half_keys + 1, temp_child_ptr.end(), new_node->child_ptr.begin());
+                new_node->num_keys = half_size;
 
                 // update next pointer for current node
                 ptr2next = new_node;
@@ -146,9 +144,9 @@ Node* Node::insert_record(float k, Record* rptr) {
                 keys.push_back(new_node->keys[0]);
                 child_ptr.push_back(new_node);
 
-                n += 1;
+                num_keys++;
                 // sort inserted key into position
-                int i = n - 1;
+                int i = num_keys - 1;
                 while (i > 0 && keys[i] < keys[i-1]) {
                     swap(keys[i], keys[i - 1]);
                     swap(child_ptr[i + 1], child_ptr[i]);
@@ -177,22 +175,28 @@ float Node::smallest() {
     }
 }
 
+void Node::printRecord(Record* record) {
+    cout << "tconst: " << record->tconst;
+    cout << ", average rating: " << record->averageRating;
+    cout << ", numVotes: " << record->numVotes << endl;
+}
+
 Node* Node::search(float k) {
     int i = 0;
     if (leaf) {
-        while (i < n && k > keys[i]) {
-            i += 1;
+        while (i < num_keys && k > keys[i]) {
+            i++;
         }
         if (k == keys[i]) {
-            printf("%s", record_ptr[i]->tconst.c_str());
+            printRecord(record_ptr[i]);
             return new Node(3);
         }
         else return NULL;
     }
     
     else {
-        while (i < n && k >= keys[i]) {
-            i += 1;
+        while (i < num_keys && k >= keys[i]) {
+            i++;
         }
         return child_ptr[i]->search(k);
     }
