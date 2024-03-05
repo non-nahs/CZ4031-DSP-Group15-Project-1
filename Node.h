@@ -27,6 +27,7 @@ public:
     Node(int _n, bool _leaf = false, Node* _ptr2next = NULL);
     Node* insert_record(float k, Record* rptr);
     float smallest();
+    int split_check_duplicates(vector<float> keys);
     void printRecord(Record* record);
     Node* search(float k);
 };

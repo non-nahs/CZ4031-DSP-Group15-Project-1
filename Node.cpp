@@ -38,24 +38,37 @@ Node* Node::insert_record(float k, Record* rptr) {
                 swap(temp_record_ptr[i], temp_record_ptr[i-1]);
                 i--;
             }
-            size_t half_size = temp_keys.size() / 2;
 
-            // update current node with first half of keys and record pointers
-            int first_half_keys = temp_keys.size() - half_size;
-            keys.resize(first_half_keys);
-            copy(temp_keys.begin(), temp_keys.begin() + first_half_keys, keys.begin());
-            record_ptr.resize(first_half_keys);
-            copy(temp_record_ptr.begin(), temp_record_ptr.begin() + first_half_keys, record_ptr.begin());
-            num_keys = first_half_keys;
+            // split_index is the number of keys in the first node
+            // split_index = -1 if the whole vector is the same, need overflow block
+            int split_index = split_check_duplicates(temp_keys);
 
-            // create a new node for the second half of keys and record pointers
+            if (split_index == -1) {
+                // create an overflow node
+                Node* new_node = new Node(n, leaf=true, ptr2next);
+                new_node->keys.push_back(k);
+                new_node->record_ptr.push_back(rptr);
+                new_node->num_keys = 1;
+                ptr2next = new_node;
+                return NULL;
+            }
+
+            // update current node with first set of keys and record pointers
+            keys.resize(split_index);
+            copy(temp_keys.begin(), temp_keys.begin() + split_index, keys.begin());
+            record_ptr.resize(split_index);
+            copy(temp_record_ptr.begin(), temp_record_ptr.begin() + split_index, record_ptr.begin());
+            num_keys = split_index;
+
+            // create a new node for the second set of keys and record pointers
             Node* new_node = new Node(n, leaf=true, ptr2next);
 
-            new_node->keys.resize(half_size);
-            copy(temp_keys.begin() + first_half_keys, temp_keys.end(), new_node->keys.begin());
-            new_node->record_ptr.resize(half_size);
-            copy(temp_record_ptr.begin() + first_half_keys, temp_record_ptr.end(), new_node->record_ptr.begin());
-            new_node->num_keys = half_size;
+            int new_node_keys = temp_keys.size() - split_index;
+            new_node->keys.resize(new_node_keys);
+            copy(temp_keys.begin() + split_index, temp_keys.end(), new_node->keys.begin());
+            new_node->record_ptr.resize(new_node_keys);
+            copy(temp_record_ptr.begin() + split_index, temp_record_ptr.end(), new_node->record_ptr.begin());
+            new_node->num_keys = new_node_keys;
 
             // update next pointer for current node
             ptr2next = new_node;
@@ -174,6 +187,27 @@ float Node::smallest() {
     else {
         return keys[0];
     }
+}
+
+int Node::split_check_duplicates(vector<float> keys) {
+    int size = keys.size();
+    int split_index = size - (size / 2);
+    for (int step = 0; step < size - 1; step++) {
+        // split_index is the size of the first split
+        // for a vector of size 4 (even), split_index tries splits in this order: 2, 1, 3
+        // for a vector of size 5 (odd ), split_index tries splits in this order: 3, 2, 4, 1
+        if (step % 2 == 0)
+            split_index += step;
+        else
+            split_index -= step;
+        // test if values are different at split_index
+        if (keys[split_index - 1] != keys[split_index]) {
+            // if values are different, return
+            return split_index;
+        }
+    }
+    // if no split works (all the same key), must use overflow block
+    return -1;
 }
 
 void Node::printRecord(Record* record) {
