@@ -29,6 +29,19 @@ public:
     int smallest();
     int split_check_duplicates(vector<int> keys);
     bool printRecord(int min, int max);
+    Node *delete_record(float k, Node *parentNode);
+    Node *merge_left(Node *leftSibling, Node *parentNode, float parentKey);
+    Node *merge_right(Node *rightSibling, Node *parentNode, float parentKey);
+    Node *borrow_left(Node *leftSibling, Node *parentNode, float parentKey, Node *childNode);
+    Node *borrow_right(Node *rightSibling, Node *parentNode, float parentKey, Node *childNode);
+    Node *findRightSibling(Node *parentNode, float parentKey, Node *childNode);
+    Node *findLeftSibling(Node *parentNode, float parentKey, Node *childNode);
+    float findParentKey(Node *parentNode, Node *childNode);
+    int findChildPtrIndex(Node *parentNode, Node *currNode);
+    void adjustSmallest(Node *parentNode, float k);
+    void adjustPointers(Node *parentNode, float k);
+    void printKeys();
+    int index_inside_node(float k);
     void search(int min, int max = -1);
 };
 

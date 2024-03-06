@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/joedav98/Documents/GitHub/CZ4031-Database-System-Principles-Group-Project",
-      "program": "/Users/joedav98/Documents/GitHub/CZ4031-Database-System-Principles-Group-Project/build/Debug/outDebug"
+      "cwd": "/Users/hryu2020/Desktop/GitHub/CZ4031-Database-System-Principles-Group-Project",
+      "program": "/Users/hryu2020/Desktop/GitHub/CZ4031-Database-System-Principles-Group-Project/build/Debug/outDebug"
     }
   ]
 }

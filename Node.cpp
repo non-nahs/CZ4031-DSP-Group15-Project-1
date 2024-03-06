@@ -180,6 +180,42 @@ Node* Node::insert_record(int k, Record* rptr) {
     }
 }
 
+void Node::adjustSmallest(Node *currNode, float k)
+{
+    if (!currNode)
+    {
+        return;
+    }
+    if (currNode->leaf)
+    {
+        return;
+    }
+    if (!currNode->leaf)
+    {
+        int i = 0;
+        cout << "k:" << k << endl;
+        cout << "currNode child pointer size:" << currNode->child_ptr.size() << endl;
+        while (i < currNode->child_ptr.size() && k >= currNode->keys[i])
+        {
+            if (i == currNode->child_ptr.size() - 1)
+            {
+                break;
+            }
+            i++;
+            cout << "currNode keys[i] after increment:" << currNode->keys[i] << endl;
+        }
+        // i = findChildPtrIndex()
+        cout << "i:" << i << endl;
+        adjustSmallest(currNode->child_ptr[i], k);
+
+        for (int i = 0; i < currNode->child_ptr.size() - 1; ++i)
+        {
+            currNode->keys[i] = currNode->child_ptr[i + 1]->smallest();
+            cout << "smallest:" << currNode->child_ptr[i + 1]->smallest() << endl;
+        }
+
+    }
+}
 int Node::smallest() {
     if (!leaf) {
         return child_ptr.at(0)->smallest();
@@ -189,6 +225,600 @@ int Node::smallest() {
     }
 }
 
+int Node::index_inside_node(float k)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        if (keys[i] == k)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+Node *Node::delete_record(float k, Node *parentNode)
+{
+    // Find the index of the key in the current node
+    int index = index_inside_node(k);
+    cout << "index inside node:" << index << endl;
+    // If the key is found in the current node
+    if (index != -1)
+    {
+
+        if (leaf)
+        {
+            cout << "index:" << index << endl;
+            // If the node is a leaf, simply delete the key
+            keys.erase(keys.begin() + index);
+            record_ptr.erase(record_ptr.begin() + index);
+            num_keys--;
+            float parentKey = findParentKey(parentNode, this);
+            cout << parentKey << endl;
+            cout << "parentNode:" << parentNode << endl;
+            // Check for underflow
+            if (num_keys < (n + 1) / 2 && parentNode)
+            {
+                // cout << "Underflow occurred" << endl;
+                // Borrow from left sibling if possible
+                Node *leftSibling = findLeftSibling(parentNode, parentKey, this);
+                if (leftSibling && leftSibling->num_keys > (n + 1) / 2)
+                {
+                    borrow_left(leftSibling, parentNode, parentKey, this);
+                    return nullptr;
+                }
+                // cout << "Cannot borrow from left sibiling" << endl;
+                // Borrow from right sibling if possible
+                Node *rightSibling = findRightSibling(parentNode, parentKey, this);
+                // cout << "right sibling size:" << rightSibling->n << endl;
+                if (rightSibling && rightSibling->num_keys > (n + 1) / 2)
+                {
+                    cout << "borrow from right" << endl;
+                    return borrow_right(rightSibling, parentNode, parentKey, this);
+                }
+                // cout << "Cannot borrow from right sibiling" << endl;
+                // Merge with left or right sibling
+                if (leftSibling)
+                {
+                    cout << "Merge with left sibiling" << endl;
+                    return merge_left(leftSibling, parentNode, parentKey);
+                }
+                else
+                {
+                    cout << "Merge with right sibiling" << endl;
+                    Node *mergedNode = merge_right(rightSibling, parentNode, parentKey);
+                    cout << "Merged node size in delete_record:" << mergedNode->keys.size() << endl;
+                    return mergedNode;
+                }
+            }
+        }
+        else
+        {
+            int i = 0;
+            while (i < num_keys && k >= keys[i])
+            {
+                i++;
+            }
+            Node *childNode = child_ptr[i];
+            // Node *mergedNode = childNode->delete_record(k, this);
+            Node *deletedNode = childNode->delete_record(k, this);
+            int index = index_inside_node(k);
+            float parentKey = findParentKey(parentNode, this);
+            cout << parentKey << endl;
+            // cout << "parentNode:" << parentNode << endl;
+            // Check for underflow after deletion in the child node
+            if (deletedNode && num_keys < n / 2 && parentNode)
+            {
+                Node *leftSiblingCurr = findLeftSibling(parentNode, parentKey, this);
+                Node *rightSiblingCurr = findRightSibling(parentNode, parentKey, this);
+                if (leftSiblingCurr && leftSiblingCurr->num_keys> n / 2)
+                {
+                    return borrow_left(leftSiblingCurr, parentNode, parentKey, this);
+                }
+                if (rightSiblingCurr && rightSiblingCurr->num_keys > n / 2)
+                {
+                    cout << "borrowing from right for internal node" << endl;
+                    return borrow_right(rightSiblingCurr, parentNode, parentKey, this);
+                }
+                // cout << "before entering merging for internal node " << endl;
+                else
+                {
+                    cout << "merging for internal node " << endl;
+                    int childIndexToCurr = findChildPtrIndex(parentNode, this);
+                    parentNode->child_ptr[childIndexToCurr] = deletedNode;
+                    Node *currNode = deletedNode;
+                    cout << "index of current internal node in parent (found in internal node):" << childIndexToCurr << endl;
+                    Node *leftSiblingNew = findLeftSibling(parentNode, parentKey, currNode);
+
+                    if (leftSiblingNew)
+                    {
+                        int leftSiblingIndex = findChildPtrIndex(parentNode, leftSiblingNew);
+                        cout << "index of left sibling node in parent (internal found):" << leftSiblingIndex << endl;
+                        cout << "left sibling size (internal found):" << leftSiblingNew->keys.size() << endl;
+                        for (int i = 0; i < leftSiblingNew->child_ptr.size(); i++)
+                        {
+                            cout << "left sibling i:" << i << endl;
+                            if (i == leftSiblingNew->child_ptr.size() - 1)
+                            {
+                                parentNode->child_ptr[leftSiblingIndex + i] = leftSiblingNew->child_ptr[i];
+                            }
+                            else
+                            {
+                                // parentNode->child_ptr[leftSiblingIndex + i] = leftSibling->child_ptr[i];
+                                parentNode->child_ptr.insert(parentNode->child_ptr.begin() + leftSiblingIndex + i, leftSiblingNew->child_ptr[i]);
+                                cout << "left sibling keys[i]:" << leftSiblingNew->keys[i] << endl;
+                                parentNode->keys.insert(parentNode->keys.begin() + i, leftSiblingNew->keys[i]);
+                                parentNode->num_keys++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Node *rightSiblingNew = findRightSibling(parentNode, parentKey, currNode);
+                        // cout << "right sibling size:"
+                        int rightSiblingIndex = findChildPtrIndex(parentNode, rightSiblingNew);
+                        cout << "index of right sibling node in parent:" << rightSiblingIndex << endl;
+
+                        if (rightSiblingNew)
+                        {
+                            for (int i = 0; i < rightSiblingNew->child_ptr.size(); i++)
+                            {
+                                if (rightSiblingIndex + i == parentNode->child_ptr.size())
+                                {
+                                    // cout << "right sibling child pointer key:" << rightSibling->child_ptr[i]->keys[0] << endl;
+                                    parentNode->keys.push_back(rightSiblingNew->child_ptr[i]->keys[0]);
+                                    parentNode->child_ptr.push_back(rightSiblingNew->child_ptr[i]);
+                                    parentNode->num_keys++;
+                                }
+                                else
+                                {
+                                    parentNode->child_ptr[rightSiblingIndex + i] = rightSiblingNew->child_ptr[i];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        // Key not found in the current node, continue searching in child nodes
+        if (!leaf)
+        {
+            int i = 0;
+            while (i < num_keys && k >= keys[i])
+            {
+                i++;
+            }
+            Node *childNode = child_ptr[i];
+            // Node *mergedNode = childNode->delete_record(k, this);
+            Node *deletedNode = childNode->delete_record(k, this);
+            float parentKey = findParentKey(parentNode, this);
+            cout << "parent key:" << parentKey << endl;
+            if (deletedNode && num_keys < n / 2 && parentNode)
+            {
+
+                Node *leftSiblingCurr = findLeftSibling(parentNode, parentKey, this);
+                Node *rightSiblingCurr = findRightSibling(parentNode, parentKey, this);
+                if (leftSiblingCurr && leftSiblingCurr->num_keys > n / 2)
+                {
+                    return borrow_left(leftSiblingCurr, parentNode, parentKey, this);
+                }
+                if (rightSiblingCurr && rightSiblingCurr->num_keys > n/ 2)
+                {
+                    cout << "borrowing from right for internal node" << endl;
+                    return borrow_right(rightSiblingCurr, parentNode, parentKey, this);
+                }
+                else
+                {
+                    int childIndexToCurr = findChildPtrIndex(parentNode, this);
+                    parentNode->child_ptr[childIndexToCurr] = deletedNode;
+                    Node *currNode = deletedNode;
+                    cout << "index of current internal node in parent:" << childIndexToCurr << endl;
+                    Node *leftSibling = findLeftSibling(parentNode, parentKey, currNode);
+
+                    if (leftSibling)
+                    {
+
+                        int leftSiblingIndex = findChildPtrIndex(parentNode, leftSibling);
+                        cout << "index of left sibling node in parent:" << leftSiblingIndex << endl;
+                        cout << "left sibling size:" << leftSibling->keys.size() << endl;
+                        for (int i = 0; i < leftSibling->child_ptr.size(); i++)
+                        {
+                            cout << "left sibling i:" << i << endl;
+                            if (i == leftSibling->child_ptr.size() - 1)
+                            {
+                                parentNode->child_ptr[leftSiblingIndex + i] = leftSibling->child_ptr[i];
+                            }
+                            else
+                            {
+                                // parentNode->child_ptr[leftSiblingIndex + i] = leftSibling->child_ptr[i];
+                                cout << "left sibling keys[i]:" << leftSibling->keys[i] << endl;
+                                parentNode->child_ptr.insert(parentNode->child_ptr.begin() + leftSiblingIndex + i, leftSibling->child_ptr[i]);
+                                parentNode->keys.insert(parentNode->keys.begin() + i, leftSibling->keys[i]);
+                                parentNode->num_keys++;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Node *rightSibling = findRightSibling(parentNode, parentKey, currNode);
+                        // cout << "right sibling size:"
+                        int rightSiblingIndex = findChildPtrIndex(parentNode, rightSibling);
+                        cout << "index of right sibling node in parent:" << rightSiblingIndex << endl;
+
+                        if (rightSibling)
+                        {
+                            for (int i = 0; i < rightSibling->child_ptr.size(); i++)
+                            {
+                                if (rightSiblingIndex + i == parentNode->child_ptr.size())
+                                {
+                                    // cout << "right sibling child pointer key:" << rightSibling->child_ptr[i]->keys[0] << endl;
+                                    parentNode->keys.push_back(rightSibling->child_ptr[i]->keys[0]);
+                                    parentNode->child_ptr.push_back(rightSibling->child_ptr[i]);
+                                    parentNode->num_keys++;
+                                }
+                                else
+                                {
+                                    parentNode->child_ptr[rightSiblingIndex + i] = rightSibling->child_ptr[i];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // cout << "returning null ptr " << endl;
+    return nullptr;
+}
+
+float Node::findParentKey(Node *parentNode, Node *childNode)
+{
+    // Iterate through the child pointers of the parent node
+    for (int i = 0; i < parentNode->child_ptr.size(); ++i)
+    {
+        // If the current child pointer matches the child node
+        cout << "Parent keys:" << parentNode->keys[i] << endl;
+        if (parentNode->child_ptr[i] == childNode)
+        {
+            if (i == 0)
+            {
+                return parentNode->keys[i];
+            }
+            else
+            {
+                return parentNode->keys[i - 1];
+            }
+            // cout << "ith child ptr:" << i << endl;
+            // // Return the key at the same index in the parent node
+            // return parentNode->keys[i]; // Assuming child_ptr[0] corresponds to keys[0]
+        }
+    }
+    // If the child node is not found in the parent node's child pointers, return a default value
+    return -1; // Or any other default value indicating that the parent key was not found
+}
+
+Node *Node::findRightSibling(Node *parentNode, float parentKey, Node *childNode)
+{
+    // Find the right sibling of the current node
+
+    int childPtrIndex = 0;
+    while (childPtrIndex < parentNode->child_ptr.size() && parentNode->child_ptr[childPtrIndex] != childNode)
+    {
+        childPtrIndex++;
+    }
+    cout << "child pointer index for find right sibling:" << childPtrIndex << endl;
+    cout << "parent node child pointer size:" << parentNode->child_ptr.size() << endl;
+
+    // if (childPtrIndex > 0 && childPtrIndex < parentNode->child_ptr.size())
+    // {
+    //     // Return the right sibling node
+    //     return parentNode->child_ptr[childPtrIndex + 1];
+    // }
+    // else
+    // {
+    //     // If there's no right sibling, return nullptr
+    //     return nullptr;
+    // }
+    // If there's no right sibling (last child), return nullptr
+    if (childPtrIndex == parentNode->child_ptr.size() - 1)
+    {
+        cout << "returning null pointer for find right sibling" << endl;
+        return nullptr;
+    }
+
+    // Otherwise, return the right sibling
+    else
+    {
+        return parentNode->child_ptr[childPtrIndex + 1];
+    }
+}
+
+Node *Node::findLeftSibling(Node *parentNode, float parentKey, Node *childNode)
+{
+    // Find the left sibling of the current node
+    int childPtrIndex = 0;
+    while (childPtrIndex < parentNode->child_ptr.size() && parentNode->child_ptr[childPtrIndex] != childNode)
+    {
+        childPtrIndex++;
+    }
+    cout << "child ptr index for left sibling of current node:" << childPtrIndex - 1 << endl;
+    if (childPtrIndex > 0)
+    {
+        // Return the left sibling node
+        return parentNode->child_ptr[childPtrIndex - 1];
+    }
+    else
+    {
+        // If there's no left sibling, return nullptr
+        return nullptr;
+    }
+}
+
+Node *Node::merge_left(Node *leftSibling, Node *parentNode, float parentKey)
+{
+    // Merge the current node with its left sibling
+    int parentIndex = 0;
+    while (parentIndex < parentNode->n && parentNode->keys[parentIndex] < parentKey)
+    {
+        parentIndex++;
+    }
+
+    // Find the index of the left sibling in the parent node
+    int siblingIndex = parentIndex;
+    cout << "siblingIndex:" << siblingIndex << endl;
+    // Move keys and pointers from the left sibling to the current node
+    keys.insert(keys.begin(), leftSibling->keys.begin(), leftSibling->keys.end());
+    record_ptr.insert(record_ptr.begin(), leftSibling->record_ptr.begin(), leftSibling->record_ptr.end());
+    num_keys += leftSibling->num_keys;
+    cout << "size of n:" << num_keys << endl;
+    leftSibling->printKeys();
+    // Adjust parent pointers
+
+    cout << "Parent key being erased: " << parentNode->keys[siblingIndex] << endl;
+    parentNode->keys.erase(parentNode->keys.begin() + siblingIndex);
+    // parentNode->printKeys();
+    parentNode->child_ptr.erase(parentNode->child_ptr.begin() + siblingIndex);
+    parentNode->num_keys--;
+    cout << "size of n after adjusting parent pointers:" << parentNode->num_keys << endl;
+
+    // Update next pointer if merging leaf nodes
+    if (leaf && leftSibling->leaf)
+    {
+        ptr2next = leftSibling->ptr2next;
+    }
+
+    if (parentNode->keys.size() == 0)
+    {
+        // cout << "Deleting parent node" << endl;
+        // delete parentNode;
+        cout << "Size of merged node:" << keys.size() << endl;
+        return this;
+    }
+
+    // Delete the left sibling node
+    delete leftSibling;
+
+    // Check for underflow in the parent node
+    if (parentNode->num_keys < n/ 2)
+    {
+        // Recursive call to handle underflow in the parent node
+        return parentNode->delete_record(parentNode->keys[0], parentNode);
+    }
+    if (parentNode->num_keys >= n / 2)
+    {
+        cout << "Size of merged node >=n/2:" << keys.size() << endl;
+        return this;
+    }
+
+    return this;
+}
+Node *Node::merge_right(Node *rightSibling, Node *parentNode, float parentKey)
+{
+    // Find the index of the right sibling in the parent node
+    int parentIndex = 0;
+    while (parentIndex < parentNode->n && parentNode->keys[parentIndex] != parentKey)
+    {
+        parentIndex++;
+    }
+    cout << "Parent index:" << parentIndex << endl;
+    cout << "Parent key:" << parentKey << endl;
+    cout << "Parent node child_ptr size: " << parentNode->child_ptr.size() << endl;
+    cout << "Parent node keys size: " << parentNode->keys.size() << endl;
+
+    // Move keys and pointers from the right sibling to the current node
+    rightSibling->keys.insert(rightSibling->keys.begin(), keys.begin(), keys.end());
+    rightSibling->record_ptr.insert(rightSibling->record_ptr.begin(), record_ptr.begin(), record_ptr.end());
+    // keys.insert(keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
+    // record_ptr.insert(record_ptr.end(), rightSibling->record_ptr.begin(), rightSibling->record_ptr.end());
+    if (!leaf)
+    {
+        // child_ptr.insert(child_ptr.end(), rightSibling->child_ptr.begin(), rightSibling->child_ptr.end());
+        rightSibling->child_ptr.insert(rightSibling->child_ptr.end(), child_ptr.begin(), child_ptr.end());
+    }
+    // n += rightSibling->n;
+    rightSibling->num_keys += num_keys;
+    cout << "current node size:" << rightSibling->num_keys << endl;
+    // Delete the parent key from the parent node
+    parentNode->keys.erase(parentNode->keys.begin() + parentIndex);
+    parentNode->num_keys--;
+    parentNode->child_ptr.erase(parentNode->child_ptr.begin() + parentIndex);
+    cout << "ParentNode n:" << parentNode->num_keys << endl;
+    cout << "ParentNode child pointer size:" << parentNode->child_ptr.size() << endl;
+    // cout << "After deleting right sibling" << endl;
+    // Update next pointer if merging leaf nodes
+    if (leaf && rightSibling->leaf)
+    {
+        ptr2next = rightSibling->ptr2next;
+    }
+    // Delete the right sibling node
+    delete this;
+    // cout << "After updating current node" << endl;
+    if (parentNode->keys.size() == 0)
+    {
+        // cout << "Deleting parent node" << endl;
+        // delete parentNode;
+        cout << "Size of merged node:" << rightSibling->keys.size() << endl;
+        return rightSibling;
+    }
+
+    // cout << "Size of merged node:" << keys.size() << endl;
+
+    // Check for underflow in the parent node
+    if (parentNode->num_keys < n / 2)
+    {
+        cout << "Size of merged node:" << rightSibling->keys.size() << endl;
+
+        // Recursive call to handle underflow in the parent node
+        return parentNode->delete_record(parentNode->keys[0], parentNode);
+    }
+    if (parentNode->num_keys >= n / 2)
+    {
+        cout << "Size of merged node >=n/2:" << rightSibling->keys.size() << endl;
+        return rightSibling;
+    }
+    cout << "Returning null pointer" << endl;
+    return nullptr;
+}
+
+Node *Node::borrow_left(Node *leftSibling, Node *parentNode, float parentKey, Node *childNode)
+{
+    // Borrow a key from the left sibling
+    // int parentIndex = 0;
+    // while (parentIndex < parentNode->n && parentNode->keys[parentIndex] < parentKey)
+    // {
+    //     parentIndex++;
+    // }
+
+    int childPtrIndex = 0;
+    while (childPtrIndex < parentNode->child_ptr.size() && parentNode->child_ptr[childPtrIndex] != childNode)
+    {
+        childPtrIndex++;
+    }
+
+    // Find the index of the left sibling in the parent node
+    int siblingIndex = childPtrIndex - 1;
+
+    // Move the last key from the left sibling to the parent node
+    parentNode->keys[siblingIndex] = leftSibling->keys.back();
+    parentNode->record_ptr[siblingIndex] = leftSibling->record_ptr.back();
+
+    // Move the parent key down to the current node
+    keys.insert(keys.begin(), parentNode->keys[siblingIndex]);
+    record_ptr.insert(record_ptr.begin(), parentNode->record_ptr[siblingIndex]);
+    num_keys++;
+
+    cout << "left sibling keys back:" << leftSibling->keys.back() << endl;
+    cout << "parent node keys back:" << parentNode->keys[siblingIndex] << endl;
+    // Adjust sibling node
+    leftSibling->keys.pop_back();
+    leftSibling->record_ptr.pop_back();
+    leftSibling->num_keys--;
+
+    // Adjust parent pointers
+    if (!leaf)
+    {
+        Node *borrowedChild = leftSibling->child_ptr.back();
+        // borrowedChild->printKeys();
+        leftSibling->child_ptr.pop_back();
+        child_ptr.insert(child_ptr.begin(), borrowedChild);
+        // n++;
+        printKeys();
+        cout << "n:" << num_keys << endl;
+    }
+    return this;
+}
+
+Node *Node::borrow_right(Node *rightSibling, Node *parentNode, float parentKey, Node *childNode)
+{
+    // Borrow a key from the right sibling
+    // int parentIndex = 0;
+    // while (parentIndex < parentNode->n && parentNode->keys[parentIndex] < parentKey)
+    // {
+    //     parentIndex++;
+    // }
+
+    int childPtrIndex = 0;
+    while (childPtrIndex < parentNode->child_ptr.size() && parentNode->child_ptr[childPtrIndex] != childNode)
+    {
+        childPtrIndex++;
+        // cout << "childPtrIndex:" << childPtrIndex << endl;
+    }
+
+    // Find the index of the right sibling in the parent node
+    // int siblingIndex = 0;
+    // if (childPtrIndex == 0)
+    // {
+    //     siblingIndex = childPtrIndex + 1;
+    // }
+    // else{
+    //     siblingIndex = childPtrIndex++;}
+    int siblingIndex = childPtrIndex++;
+    cout << "index of right sibling index in parent node:" << siblingIndex << endl;
+    // Move the parent key down to the current node
+    keys.push_back(parentNode->keys[siblingIndex]);
+    if (leaf)
+    {
+        record_ptr.push_back(parentNode->record_ptr[siblingIndex]);
+    }
+    num_keys++;
+    printKeys();
+    // cout << "n:" << n << endl;
+    // Move the first key from the right sibling to the parent node
+    parentNode->keys[siblingIndex] = rightSibling->keys.front();
+    parentNode->record_ptr[siblingIndex] = rightSibling->record_ptr.front();
+    // parentNode->printKeys();
+    // Adjust sibling node
+
+    rightSibling->keys.erase(rightSibling->keys.begin());
+    // rightSibling->record_ptr.erase(rightSibling->record_ptr.begin());
+    rightSibling->printKeys();
+    if (leaf)
+    {
+        rightSibling->record_ptr.erase(rightSibling->record_ptr.begin());
+    }
+    // if (!leaf){
+    // }
+    cout << "right sibling keys size:" << rightSibling->keys.size() << endl;
+    rightSibling->printKeys();
+    rightSibling->num_keys--;
+    printKeys();
+
+    // Adjust parent pointers
+    if (!leaf)
+    {
+        Node *borrowedChild = rightSibling->child_ptr.front();
+        rightSibling->child_ptr.erase(rightSibling->child_ptr.begin());
+        child_ptr.push_back(borrowedChild);
+        // n++;
+    }
+    return this;
+}
+
+void Node::printKeys()
+{
+    cout << "Keys in the node: ";
+    for (int i = 0; i < keys.size(); ++i)
+    {
+        cout << keys[i];
+        if (i != keys.size() - 1)
+        {
+            cout << " ";
+        }
+    }
+    cout << endl;
+}
+int Node::findChildPtrIndex(Node *parentNode, Node *childNode)
+{
+    int childPtrIndex = 0;
+    while (childPtrIndex < parentNode->child_ptr.size() && parentNode->child_ptr[childPtrIndex] != childNode)
+    {
+        childPtrIndex++;
+    }
+    return childPtrIndex;
+}
 int Node::split_check_duplicates(vector<int> keys) {
     int size = keys.size();
     int split_index = size - (size / 2);

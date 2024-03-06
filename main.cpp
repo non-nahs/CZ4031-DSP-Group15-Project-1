@@ -56,26 +56,26 @@ int main() {
     printTree(bplustree);
 
     // Search for each record in the B+ tree
-    bplustree->search(1645); // For r1
-    bplustree->search(198);  // For r2
-    bplustree->search(1342); // For r3
-    bplustree->search(120);  // For r4
-    bplustree->search(2127); // For r5
-    bplustree->search(115);  // For r6
-    bplustree->search(652);  // For r7
-    bplustree->search(1807); // For r8
-    bplustree->search(154);  // For r9
-    bplustree->search(6018); // For r10
-    bplustree->search(262);  // For r11
-    bplustree->search(10287); // For r12
-    bplustree->search(1572);  // For r13
-    bplustree->search(4599);  // For r14
-    bplustree->search(817);   // For r15
-    bplustree->search(1200);  // For r16
-    bplustree->search(241);   // For r17
-    bplustree->search(478);   // For r18
-    bplustree->search(20);    // For r19
-    bplustree->search(267);   // For r20
+    // bplustree->search(1645); // For r1
+    // bplustree->search(198);  // For r2
+    // bplustree->search(1342); // For r3
+    // bplustree->search(120);  // For r4
+    // bplustree->search(2127); // For r5
+    // bplustree->search(115);  // For r6
+    // bplustree->search(652);  // For r7
+    // bplustree->search(1807); // For r8
+    // bplustree->search(154);  // For r9
+    // bplustree->search(6018); // For r10
+    // bplustree->search(262);  // For r11
+    // bplustree->search(10287); // For r12
+    // bplustree->search(1572);  // For r13
+    // bplustree->search(4599);  // For r14
+    // bplustree->search(817);   // For r15
+    // bplustree->search(1200);  // For r16
+    // bplustree->search(241);   // For r17
+    // bplustree->search(478);   // For r18
+    // bplustree->search(20);    // For r19
+    // bplustree->search(267);   // For r20
 
 
     // if (bplustree->search(5.6) != NULL) {

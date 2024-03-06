@@ -20,7 +20,21 @@ void BTree::insert(float k, Record* rptr) {
         root = new_root;
     }
 }
-
+void BTree::deleteKey(float k)
+{
+    // Call the delete_record function on the root node
+    Node *copyOfRoot = root;
+    Node *mergedNode = root->delete_record(k, root);
+    root->adjustSmallest(root, k);
+    cout << "root size:" << root->keys.size() << endl;
+    cout << "child ptr size:" << root->child_ptr.size() << endl;
+    if (mergedNode && root->keys.size() == 0)
+    {
+        // If the root node is empty after deletion, update the root
+        root = mergedNode;
+        cout << "New root size:" << mergedNode->keys.size() << endl;
+    }
+}
 void BTree::search(int min, int max) {
     if (max == -1) max = min;
     root->search(min, max);
