@@ -2,11 +2,18 @@
     "tasks": [
         {
             "type": "cppbuild",
+<<<<<<< Updated upstream
             "label": "C/C++: clang++ build active file",
             "command": "/usr/bin/clang++",
             "args": [
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
+=======
+            "label": "C/C++: g++ build active file",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-fdiagnostics-color=always",
+>>>>>>> Stashed changes
                 "-g",
                 "${file}",
                 "-o",

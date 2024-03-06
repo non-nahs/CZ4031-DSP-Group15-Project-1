@@ -91,6 +91,8 @@ void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilena
         writeBlockToFile(block, binaryFilename, blockNum);
     }
 
+    std::cout << "Data written to file: " << binaryFilename << std::endl;
+
     tsvFile.close();
 }
 
@@ -130,6 +132,7 @@ void showDatabaseStatistics(const std::string& binaryFilename) {
     std::cout << "Number of records stored in a block: " << MAX_RECORDS_PER_BLOCK << std::endl;
     std::cout << "Number of blocks for storing the data: " << numberOfBlocks << std::endl;
 }
+<<<<<<< Updated upstream
 
 void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsToDisplay) {
     std::ifstream binaryFile(binaryFilename, std::ios::binary);
@@ -173,3 +176,5 @@ int main() {
     readAndDisplayBinaryFile(binaryFilename, numRecordsToDisplay);
     return 0;
 }
+=======
+>>>>>>> Stashed changes
