@@ -27,7 +27,7 @@ public:
     Node(int _n, bool _leaf = false, Node* _ptr2next = NULL);
     Node* insert_record(int k, Record* rptr);
     int smallest();
-    int split_check_duplicates(vector<int> keys);
+    void insert_duplicate(int k, Record* rptr);
     bool printRecord(int min, int max);
     Node *delete_record(float k, Node *parentNode);
     Node *merge_left(Node *leftSibling, Node *parentNode, float parentKey);
