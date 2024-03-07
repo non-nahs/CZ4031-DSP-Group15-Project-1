@@ -30,7 +30,7 @@ int main() {
     Record* r18 = new Record("tt0000018", 5.3, 478);
     Record* r19 = new Record("tt0000019", 5.3, 20);
     Record* r20 = new Record("tt0000020", 5.0, 267);
-
+    Record *r21 = new Record("tt0000021", 5.0, 115);
 
     bplustree->insert(r1->numVotes, r1);
     bplustree->insert(r2->numVotes, r2);
@@ -42,16 +42,17 @@ int main() {
     bplustree->insert(r8->numVotes, r8);
     bplustree->insert(r9->numVotes, r9);
     bplustree->insert(r10->numVotes, r10);
-    bplustree->insert(r11->numVotes, r11);
+    // bplustree->insert(r11->numVotes, r11);
     bplustree->insert(r12->numVotes, r12);
     bplustree->insert(r13->numVotes, r13);
     bplustree->insert(r14->numVotes, r14);
     bplustree->insert(r15->numVotes, r15);
     bplustree->insert(r16->numVotes, r16);
-    bplustree->insert(r17->numVotes, r17);
-    bplustree->insert(r18->numVotes, r18);
+    // bplustree->insert(r17->numVotes, r17);
+    // bplustree->insert(r18->numVotes, r18);
     bplustree->insert(r19->numVotes, r19);
-    bplustree->insert(r20->numVotes, r20);
+    // bplustree->insert(r20->numVotes, r20);
+    // bplustree->insert(r21->numVotes, r21);
 
     printTree(bplustree);
 
@@ -77,7 +78,51 @@ int main() {
     // bplustree->search(20);    // For r19
     // bplustree->search(267);   // For r20
 
-
+    // merge with left leaf node
+    cout << "-------------------------------------" << endl;
+    cout << "First deletion of 120 " << endl;
+    bplustree->deleteKey(120);
+    printTree(bplustree);
+    // // simple case
+    cout << "-------------------------------------" << endl;
+    cout << "Second deletion of 652" << endl;
+    bplustree->deleteKey(652);
+    printTree(bplustree);
+    // borrow from right leaf node
+    cout << "-------------------------------------" << endl;
+    cout << "Third deletion of 198 " << endl;
+    bplustree->deleteKey(198);
+    printTree(bplustree);
+    // // merge with right internal node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Fourth deletion of 6018 " << endl;
+    // bplustree->deleteKey(6018);
+    // printTree(bplustree);
+    // // borrow from left leaf node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Fifth deletion of 4599 " << endl;
+    // bplustree->deleteKey(4599);
+    // printTree(bplustree);
+    // // merge with left leaf node and merge with right internal node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Sixth deletion of 115 " << endl;
+    // bplustree->deleteKey(115);
+    // printTree(bplustree);
+    // // merge with left leaf node and merge with right internal node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Seventh deletion of 817 " << endl;
+    // bplustree->deleteKey(817);
+    // printTree(bplustree);
+    // // merge with left leaf node and merge with right internal node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Eigth deletion of 2127 " << endl;
+    // bplustree->deleteKey(2127);
+    // printTree(bplustree);
+    // // merge with left leaf node and merge with right internal node
+    // cout << "-------------------------------------" << endl;
+    // cout << "Ninth deletion of 1807 " << endl;
+    // bplustree->deleteKey(1807);
+    // printTree(bplustree);
     // if (bplustree->search(5.6) != NULL) {
     //     cout << "Found" << endl;
     // } else {

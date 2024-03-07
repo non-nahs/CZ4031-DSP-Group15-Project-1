@@ -38,6 +38,7 @@ public:
     Node *findLeftSibling(Node *parentNode, float parentKey, Node *childNode);
     float findParentKey(Node *parentNode, Node *childNode);
     int findChildPtrIndex(Node *parentNode, Node *currNode);
+    int findParentKeyIndex(Node *parentNode, float parentKey);
     void adjustSmallest(Node *parentNode, float k);
     void adjustPointers(Node *parentNode, float k);
     void printKeys();
