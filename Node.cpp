@@ -309,6 +309,7 @@ Node *Node::delete_record(float k, Node *parentNode)
             int index = index_inside_node(k);
             float parentKey = findParentKey(parentNode, this);
             cout << parentKey << endl;
+            float parentKeyIndex = findParentKeyIndex(parentNode, parentKey);
             // cout << "parentNode:" << parentNode << endl;
             // Check for underflow after deletion in the child node
             if (parentNode->keys.size()==0){
@@ -328,17 +329,17 @@ Node *Node::delete_record(float k, Node *parentNode)
                     return borrow_right(rightSiblingCurr, parentNode, parentKey, this);
                 }
                 if (parentNode->num_keys>1 && leftSiblingCurr){
-
-                    
-                    
                     // leftSiblingCurr->printKeys();
+                    cout << "parentKeyIndex:" << parentKeyIndex << endl;
                     leftSiblingCurr->keys.push_back(deletedNode->keys[0]);
                     leftSiblingCurr->child_ptr.push_back(deletedNode);
                     leftSiblingCurr->num_keys++;
                     // cout << "left sibling child pointer size:" << leftSiblingCurr->child_ptr.size() << endl;
 
-                    parentNode->keys.pop_back();
-                    parentNode->child_ptr.pop_back();
+                    // parentNode->keys.pop_back();
+                    // parentNode->child_ptr.pop_back();
+                    parentNode->keys.erase(parentNode->keys.begin() + parentKeyIndex);
+                    parentNode->child_ptr.erase(parentNode->child_ptr.begin() + parentKeyIndex +1);
                     parentNode->num_keys--;
                     // // cout << "u"
                     // deletedNode->findParentKey(parentNode,deletedNode);
@@ -436,6 +437,8 @@ Node *Node::delete_record(float k, Node *parentNode)
             Node *deletedNode = childNode->delete_record(k, this);
             float parentKey = findParentKey(parentNode, this);
             cout << "parent key:" << parentKey << endl;
+            float parentKeyIndex = findParentKeyIndex(parentNode, parentKey);
+
             if (parentNode->keys.size() == 0)
             {
                 return deletedNode;
@@ -461,8 +464,8 @@ Node *Node::delete_record(float k, Node *parentNode)
                     leftSiblingCurr->num_keys++;
                     // cout << "left sibling child pointer size:" << leftSiblingCurr->child_ptr.size() << endl;
 
-                    parentNode->keys.pop_back();
-                    parentNode->child_ptr.pop_back();
+                    parentNode->keys.erase(parentNode->keys.begin() + parentKeyIndex);
+                    parentNode->child_ptr.erase(parentNode->child_ptr.begin() + parentKeyIndex + 1);
                     parentNode->num_keys--;
                     // // cout << "u"
                     // deletedNode->findParentKey(parentNode,deletedNode);
@@ -549,6 +552,14 @@ Node *Node::delete_record(float k, Node *parentNode)
     return nullptr;
 }
 
+int Node::findParentKeyIndex(Node *parentNode, float parentKey){
+    for (int i = 0; i < parentNode->keys.size(); i++){
+        if (parentNode->keys[i]==parentKey){
+            return i;
+        }
+    }
+    return -1;
+}
 float Node::findParentKey(Node *parentNode, Node *childNode)
 {
     // Iterate through the child pointers of the parent node
