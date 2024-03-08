@@ -41,6 +41,9 @@ public:
     int findParentKeyIndex(Node *parentNode, float parentKey);
     void adjustSmallest(Node *parentNode, float k);
     void adjustPointers(Node *parentNode, float k);
+    bool checkOverFlowNode(Node *currNode,float target);
+    void delete_duplicate(Node *currNode, int k, int kIndex);
+    void shift_childptr(Node *currNode, int index);
     void printKeys();
     int index_inside_node(float k);
     void search(int min, int max = -1);
