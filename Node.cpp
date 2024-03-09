@@ -1,17 +1,16 @@
 #include "Node.h"
+#include "memory.h"
 #include <algorithm>
 #include <vector>
 using namespace std;
 
-Record::Record(string _tconst, float _averageRating, int _numVotes)
-{
-    tconst = _tconst;
-    averageRating = _averageRating;
-    numVotes = _numVotes;
-}
+// Record::Record(string _tconst, float _averageRating, int _numVotes) {
+//     tconst = _tconst;
+//     averageRating = _averageRating;
+//     numVotes = _numVotes;
+// }
 
-Node::Node(int _n, bool _leaf, Node *_ptr2next)
-{
+Node::Node(int _n, bool _leaf, Node* _ptr2next) {
     n = _n;
     ptr2next = _ptr2next;
     leaf = _leaf;
@@ -22,49 +21,40 @@ Node::Node(int _n, bool _leaf, Node *_ptr2next)
 }
 
 // returns node pointer if a new node is created. otherwise, returns NULL
-Node *Node::insert_record(int k, Record *rptr)
-{
+Node* Node::insertRecord(int k, Record* rptr) {
     // terminal state: leaf node
-    if (leaf)
-    {
+    if (leaf) {
         // check if key already exists
-        for (int i = 0; i < num_keys; i++)
-        {
-            if (k == keys[i])
-            {
+        for (int i = 0; i < num_keys; i++) {
+            if (k == keys[i]) {
                 // key already exists. handle duplicate keys
-                if (!child_ptr[i])
-                {
-                    Node *overflow_node = new Node(3);
+                if (!child_ptr[i]) {
+                    Node* overflow_node = new Node(3);
                     overflow_node->keys.push_back(k);
                     overflow_node->record_ptr.push_back(rptr);
                     overflow_node->num_keys = 1;
                     child_ptr[i] = overflow_node;
                 }
-                else
-                {
+                else {
                     // insert duplicate into existing overflow node(s)
-                    child_ptr[i]->insert_duplicate(k, rptr);
-                    child_ptr[i]->num_keys++;
+                    child_ptr[i]->insertDuplicate(k, rptr);
                 }
                 return NULL;
             }
         }
         // check if node is full, need to split
-        if (num_keys == n)
-        {
+        if (num_keys == n) {
             // create temporary vectors to hold keys and pointers
             vector<int> temp_keys = keys;
             temp_keys.push_back(k);
-            vector<Record *> temp_record_ptr = record_ptr;
+            vector<Record*> temp_record_ptr = record_ptr;
             temp_record_ptr.push_back(rptr);
-            vector<Node *> temp_child_ptr = child_ptr;
+            vector<Node*> temp_child_ptr = child_ptr;
             temp_child_ptr.push_back(NULL);
 
             // ensure keys are sorted
             int i = num_keys;
-            while (i > 0 && temp_keys[i] < temp_keys[i - 1])
-            {
+            while (i > 0 && temp_keys[i] < temp_keys[i-1]) {
                 swap(temp_keys[i], temp_keys[i - 1]);
                 swap(temp_record_ptr[i], temp_record_ptr[i - 1]);
                 swap(temp_child_ptr[i], temp_child_ptr[i - 1]);
@@ -83,7 +73,7 @@ Node *Node::insert_record(int k, Record *rptr)
             num_keys = split_index;
 
             // create a new node for the second set of keys and record pointers
-            Node *new_node = new Node(n, leaf = true, ptr2next);
+            Node* new_node = new Node(n, leaf=true, ptr2next);
 
             int new_node_keys = temp_keys.size() - split_index;
             new_node->keys.resize(new_node_keys);
@@ -100,8 +90,7 @@ Node *Node::insert_record(int k, Record *rptr)
         }
 
         // not full, simply insert
-        else
-        {
+        else {
             keys.push_back(k);
             record_ptr.push_back(rptr);
             child_ptr.push_back(NULL);
@@ -109,8 +98,7 @@ Node *Node::insert_record(int k, Record *rptr)
             num_keys++;
             // sort inserted key into position
             int i = num_keys - 1;
-            while (i > 0 && keys[i] < keys[i - 1])
-            {
+            while (i > 0 && keys[i] < keys[i-1]) {
                 swap(keys[i], keys[i - 1]);
                 swap(record_ptr[i], record_ptr[i - 1]);
                 swap(child_ptr[i], child_ptr[i - 1]);
@@ -118,52 +106,45 @@ Node *Node::insert_record(int k, Record *rptr)
             }
             return NULL;
         }
-    }
-
-    else
-    {
+    } 
+    
+    else {
         // recursive case for internal nodes
         // find correct child pointer
         int i = 0;
-        while (i < num_keys && k >= keys[i])
-        {
+        while (i < num_keys && k >= keys[i]) {
             i++;
         }
         // recursive call. returns pointer if a node is created, otherwise returns NULL
-        Node *new_node = child_ptr[i]->insert_record(k, rptr);
+        Node* new_node = child_ptr[i]->insertRecord(k, rptr);
 
         // if a new node is created by splitting child nodes
-        if (new_node)
-        {
+        if (new_node) {
             // current node is full, need to split
-            if (num_keys == n)
-            {
+            if (num_keys == n) {
                 // create temporary vectors to hold keys and child pointers
                 vector<int> temp_keys = keys;
                 temp_keys.push_back(new_node->smallest());
-                vector<Node *> temp_child_ptr = child_ptr;
+                vector<Node*> temp_child_ptr = child_ptr;
                 temp_child_ptr.push_back(new_node);
 
                 // ensure keys are sorted
                 int i = n;
-                while (i > 0 && temp_keys[i] < temp_keys[i - 1])
-                {
+                while (i > 0 && temp_keys[i] < temp_keys[i-1]) {
                     swap(temp_keys[i], temp_keys[i - 1]);
                     swap(temp_child_ptr[i + 1], temp_child_ptr[i]);
                     i--;
                 }
                 // check if smaller than first child node
-                if (i == 0)
-                {
-                    if (child_ptr.at(0)->keys.at(0) > keys.at(0))
-                    {
+                if (i == 0) {
+                    if (child_ptr.at(0)->keys.at(0) > keys.at(0)) {
                         keys.at(0) = child_ptr[0]->smallest();
                         swap(child_ptr.at(0), child_ptr.at(1));
                         // update the smallest value upwards
                     }
                 }
 
-                size_t half_size = (temp_keys.size() - 1) / 2;
+                size_t half_size = (temp_keys.size() - 1)/ 2;
 
                 // update current node with first half of keys and child pointers
                 int first_half_keys = temp_keys.size() - 1 - half_size;
@@ -174,7 +155,7 @@ Node *Node::insert_record(int k, Record *rptr)
                 num_keys = first_half_keys;
 
                 // create a new node for the second half of keys and child pointers
-                Node *new_node = new Node(n, leaf, ptr2next);
+                Node* new_node = new Node(n, leaf, ptr2next);
 
                 new_node->keys.resize(half_size);
                 copy(temp_keys.begin() + first_half_keys + 1, temp_keys.end(), new_node->keys.begin());
@@ -188,25 +169,21 @@ Node *Node::insert_record(int k, Record *rptr)
             }
 
             // current node has space for the new node
-            else
-            {
+            else {
                 keys.push_back(new_node->smallest());
                 child_ptr.push_back(new_node);
 
                 num_keys++;
                 // sort inserted key into position
                 int i = num_keys - 1;
-                while (i > 0 && keys[i] < keys[i - 1])
-                {
+                while (i > 0 && keys[i] < keys[i-1]) {
                     swap(keys[i], keys[i - 1]);
                     swap(child_ptr[i + 1], child_ptr[i]);
                     i--;
                 }
                 // check if smaller than first child node
-                if (i == 0)
-                {
-                    if (child_ptr.at(0)->keys.at(0) > keys.at(0))
-                    {
+                if (i == 0) {
+                    if (child_ptr.at(0)->keys.at(0) > keys.at(0)) {
                         keys.at(0) = child_ptr.at(0)->keys.at(0);
                         swap(child_ptr.at(0), child_ptr.at(1));
                     }
@@ -214,8 +191,7 @@ Node *Node::insert_record(int k, Record *rptr)
                 return NULL;
             }
         }
-        else
-            return NULL;
+        else return NULL;
     }
 }
 // check if the node has overflow node
@@ -1063,23 +1039,20 @@ int Node::findChildPtrIndex(Node *parentNode, Node *childNode)
     return childPtrIndex;
 }
 
-void Node::insert_duplicate(int k, Record *rptr)
-{
-    if (num_keys == n)
-    {
-        if (ptr2next)
-            ptr2next->insert_duplicate(k, rptr);
-        else
-        {
-            Node *new_node = new Node(3);
+void Node::insertDuplicate(int k, Record* rptr) {
+    if (num_keys == n) {
+        if (ptr2next) 
+            ptr2next->insertDuplicate(k, rptr);
+        else {
+            Node* new_node = new Node(3);
             new_node->keys.push_back(k);
             new_node->record_ptr.push_back(rptr);
             new_node->num_keys++;
+            ptr2next = new_node;
         }
         return;
     }
-    else
-    {
+    else {
         keys.push_back(k);
         record_ptr.push_back(rptr);
         num_keys++;
@@ -1087,24 +1060,18 @@ void Node::insert_duplicate(int k, Record *rptr)
     }
 }
 
-bool Node::printRecord(int min, int max)
-{
+bool Node::printRecord(int min, int max) {
     bool printed = false;
-    for (int i = 0; i < num_keys; i++)
-    {
-        if (keys[i] >= min && keys[i] <= max)
-        {
+    for (int i = 0; i < num_keys; i++) {
+        if (keys[i] >= min && keys[i] <= max) {
             cout << "tconst: " << record_ptr[i]->tconst;
             cout << ", average rating: " << record_ptr[i]->averageRating;
             cout << ", numVotes: " << record_ptr[i]->numVotes << endl;
             printed = true;
-            if (child_ptr[i])
-            {
-                Node *cur_node = child_ptr[i];
-                while (cur_node)
-                {
-                    for (int j = 0; j < cur_node->num_keys; j++)
-                    {
+            if (child_ptr[i]) {
+                Node* cur_node = child_ptr[i];
+                while (cur_node) {
+                    for (int j = 0; j < cur_node->num_keys; j++) {
                         cout << "tconst: " << cur_node->record_ptr[j]->tconst;
                         cout << ", average rating: " << cur_node->record_ptr[j]->averageRating;
                         cout << ", numVotes: " << cur_node->record_ptr[j]->numVotes << endl;
@@ -1122,21 +1089,16 @@ bool Node::printRecord(int min, int max)
     return printed;
 }
 
-void Node::search(int min, int max)
-{
-    if (leaf)
-    {
-        if (!printRecord(min, max))
-        {
+void Node::search(int min, int max) {
+    if (leaf) {
+        if (!printRecord(min, max)) {
             cout << "Record not found" << endl;
         }
     }
-
-    else
-    {
+    
+    else {
         int i = 0;
-        while (i < num_keys && min >= keys[i])
-        {
+        while (i < num_keys && min >= keys[i]) {
             i++;
         }
         return child_ptr[i]->search(min, max);

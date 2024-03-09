@@ -5,14 +5,16 @@
 #include <vector>
 using namespace std;
 
-class Record {
-public:
-    string tconst;
-    float averageRating;
-    int numVotes;
+struct Record;
 
-    Record(string _tconst, float _averageRating, int _numVotes);
-};
+// class Record {
+// public:
+//     string tconst;
+//     float averageRating;
+//     int numVotes;
+
+//     Record(string _tconst, float _averageRating, int _numVotes);
+// };
 
 class Node {
 public:
@@ -25,9 +27,9 @@ public:
     Node* ptr2next;
 
     Node(int _n, bool _leaf = false, Node* _ptr2next = NULL);
-    Node* insert_record(int k, Record* rptr);
+    Node* insertRecord(int k, Record* rptr);
     int smallest();
-    void insert_duplicate(int k, Record* rptr);
+    void insertDuplicate(int k, Record* rptr);
     bool printRecord(int min, int max);
     Node *delete_record(float k, Node *parentNode);
     Node *merge_left(Node *leftSibling, Node *parentNode, float parentKey);

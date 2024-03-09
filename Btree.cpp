@@ -1,4 +1,5 @@
 #include "Btree.h"
+#include "memory.h"
 using namespace std;
 
 
@@ -9,7 +10,7 @@ BTree::BTree(int _n) {
 
 void BTree::insert(float k, Record* rptr) {
 	// Function to insert a key in the tree
-    Node* new_node = root->insert_record(k, rptr);
+    Node* new_node = root->insertRecord(k, rptr);
     if (new_node) {
         Node* new_root = new Node(3);
         // new_node will always be the bigger node
@@ -41,21 +42,40 @@ void BTree::search(int min, int max) {
 }
 
 void BTree::printTree() {
-    printNode(root, 0);
+    printNode(root, 0, 0);
 }
 
-void BTree::printNode(Node* node, int level) {
+void BTree::printNode(Node* node, int level, int child_id) {
     if (node != nullptr) {
         // Print the keys of the current node
-        cout << "Level " << level << ": ";
+        // added child node information for debugging
+        cout << "Level " << level << " (child " << child_id << ") : ";
         for (int i = 0; i < node->num_keys; ++i) {
             cout << node->keys[i] << " ";
         }
         cout << endl;
 
         // Recursively print the child nodes
-        for (int i = 0; i <= node->num_keys; ++i) {
-            printNode(node->child_ptr[i], level + 1);
+        if (!node->leaf) {
+            for (int i = 0; i < node->num_keys + 1; ++i) {
+                printNode(node->child_ptr[i], level + 1, i);
+            }
+        }
+        else if (node->leaf) {
+            for (int i = 0; i < node->num_keys; ++i) {
+                if (node->child_ptr[i]) {
+                    int num_duplicates = countDuplicateKeys(node->child_ptr[i]);
+                    cout << num_duplicates << " duplicate(s) of key " << node->keys[i] << endl;
+                }
+            }
         }
     }
+}
+
+int BTree::countDuplicateKeys(Node* node) {
+    if (node != nullptr) {
+        return node->num_keys + countDuplicateKeys(node->ptr2next);
+    }
+    else 
+        return 0;
 }

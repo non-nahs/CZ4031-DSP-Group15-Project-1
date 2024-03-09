@@ -7,6 +7,8 @@
 #include "Node.h"
 using namespace std;
 
+struct Record;
+
 class BTree {
 public:
     Node* root;
@@ -18,7 +20,8 @@ public:
     void search(int min, int max = -1);
     void printTree();
 private:
-    void printNode(Node* node, int level);
+    void printNode(Node* node, int level, int child_id);
+    int countDuplicateKeys(Node* node);
 };
 
 #endif // BTREE_H
