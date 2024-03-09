@@ -1,4 +1,4 @@
-# CZ4031-Database-System-Principles-Group-Project
+# CZ4031-Database-System-Principles-Group-Project 1
 
 ## Installation Guide
 This code was worked on using VS code and C++ extensions. Ensure that a C++ compiler is installed. Git was used for version control and collaboration tool. 
