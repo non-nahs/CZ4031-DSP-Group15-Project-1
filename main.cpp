@@ -64,7 +64,6 @@ int main() {
     cout << "Average of “averageRating’s”: " << fixed << setprecision(3) << sum / avg_ratings.size() << endl;
 
     cout << "Running time of the retrieval process: " << duration.count() << " microseconds" << endl;
-    cout << "running time of the retrieval process: " << duration.count() << endl;
     scanBinaryFileExperiment3(binaryFilename);
 
     // experiment 4
