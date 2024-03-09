@@ -1,54 +1,45 @@
+#include "memory.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <string>
 #include <cstring>
+// using namespace std;
 
-const int BLOCK_SIZE = 200; // Block size in bytes
+// const int BLOCK_SIZE = 200; // Block size in bytes
 
 #pragma pack(push, 1) // Disable padding bytes
 
 // Key data structure for B+ tree
-struct Record { 
-    char tconst[10];
-    float averageRating;
-    int numVotes;
-
-    Record(const std::string& id, float averageRating, int numVotes)
-        : averageRating(averageRating), numVotes(numVotes) {
-        strncpy(this->tconst, id.c_str(), sizeof(this->tconst) - 1);
-        this->tconst[sizeof(this->tconst) - 1] = '\0'; // Ensure null-termination
-    }
-};
+Record::Record(const std::string& id, float averageRating, int numVotes)
+    : averageRating(averageRating), numVotes(numVotes) {
+    strncpy(this->tconst, id.c_str(), sizeof(this->tconst) - 1);
+    this->tconst[sizeof(this->tconst) - 1] = '\0'; // Ensure null-termination
+}
 #pragma pack(pop) // Re-enable padding
 
 const int RECORD_SIZE = sizeof(Record); // The size of a record
 const int MAX_RECORDS_PER_BLOCK = BLOCK_SIZE / RECORD_SIZE;
 
-struct Block {
-    char data[BLOCK_SIZE];
-    int recordCount = 0;
-
-    bool addRecord(const Record& record) {
-        if (recordCount < MAX_RECORDS_PER_BLOCK) {
-            int offset = recordCount * sizeof(Record);
-            memcpy(data + offset, &record, sizeof(Record));
-            recordCount++;
-            return true;
-        }
-        return false;
+bool Block::addRecord(const Record& record) {
+    if (recordCount < MAX_RECORDS_PER_BLOCK) {
+        int offset = recordCount * sizeof(Record);
+        memcpy(data + offset, &record, sizeof(Record));
+        recordCount++;
+        return true;
     }
+    return false;
+}
 
-    bool isFull() {
-        return recordCount >= MAX_RECORDS_PER_BLOCK;
-    }
+bool Block::isFull() {
+    return recordCount >= MAX_RECORDS_PER_BLOCK;
+}
 
-    void clear() {
-        memset(data, 0, BLOCK_SIZE);
-        recordCount = 0;
-    }
-};
+void Block::clear() {
+    memset(data, 0, BLOCK_SIZE);
+    recordCount = 0;
+}
 
 void writeBlockToFile(const Block& block, const std::string& filename, int blockNum) {
     std::fstream file(filename, std::ios::in | std::ios::out | std::ios::binary);
@@ -60,7 +51,7 @@ void writeBlockToFile(const Block& block, const std::string& filename, int block
     file.close();
 }
 
-void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilename) {
+void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilename, BTree* bplustree) {
     std::ifstream tsvFile(tsvFilename);
     std::string line, token;
     Block block;
@@ -84,6 +75,8 @@ void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilena
             block.clear();
             block.addRecord(record); // Add record to the new block
         }
+        /// TODO: insert into b+ tree
+        bplustree->insert(record.numVotes, &record);
     }
 
     // Write any remaining records to file
@@ -132,7 +125,7 @@ void showDatabaseStatistics(const std::string& binaryFilename) {
     std::cout << "Number of records stored in a block: " << MAX_RECORDS_PER_BLOCK << std::endl;
     std::cout << "Number of blocks for storing the data: " << numberOfBlocks << std::endl;
 }
-<<<<<<< Updated upstream
+// <<<<<<< Updated upstream
 
 void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsToDisplay) {
     std::ifstream binaryFile(binaryFilename, std::ios::binary);
@@ -162,19 +155,19 @@ void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsT
     binaryFile.close();
 }
 
-int main() {
-    const std::string tsvFilename = "data.tsv"; 
-    const std::string binaryFilename = "disk_storage_18byes_record.bin"; // Replace name with size of byte record
-    int numRecordsToDisplay = 10;
+// int main() {
+//     const std::string tsvFilename = "data.tsv"; 
+//     const std::string binaryFilename = "disk_storage_18byes_record.bin"; // Replace name with size of byte record
+//     int numRecordsToDisplay = 10;
 
-    loadTSVData(tsvFilename, binaryFilename);
+//     loadTSVData(tsvFilename, binaryFilename, nullptr);
 
-    std::cout << "Data loading complete." << std::endl;
+//     std::cout << "Data loading complete." << std::endl;
 
-    showDatabaseStatistics(binaryFilename);
+//     showDatabaseStatistics(binaryFilename);
 
-    readAndDisplayBinaryFile(binaryFilename, numRecordsToDisplay);
-    return 0;
-}
-=======
->>>>>>> Stashed changes
+//     readAndDisplayBinaryFile(binaryFilename, numRecordsToDisplay);
+//     return 0;
+// }
+// =======
+// >>>>>>> Stashed changes
