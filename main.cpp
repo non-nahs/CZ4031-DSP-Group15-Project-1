@@ -92,6 +92,7 @@ int main() {
 
     cout << endl << "Experiment 5" << endl;
     cout << "----------------Deletion of 1000--------------------" << endl;
+    scanBinaryFileExperiment5(binaryFilename); // Added before the actual deletion cos just measuring access time
     auto start_deletion = high_resolution_clock::now();
     bplustree->deleteKey(1000);
     auto stop_deletion = high_resolution_clock::now();

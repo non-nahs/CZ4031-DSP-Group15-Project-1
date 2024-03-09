@@ -240,6 +240,47 @@ void scanBinaryFileExperiment4(const std::string& binaryFilename) {
     std::cout << "Running time: " << runningTime.count() << " milliseconds" << std::endl;
 }
 
+void scanBinaryFileExperiment5(const std::string& binaryFilename) {
+    std::ifstream binaryFile(binaryFilename, std::ios::binary);
+    if (!binaryFile.is_open()) {
+        std::cerr << "Could not open the binary file for reading." << std::endl;
+        return;
+    }
+
+    int blockCount = 0, recordCount = 0;
+    char block[BLOCK_SIZE];
+
+    // Start measuring time
+    auto startTime = std::chrono::high_resolution_clock::now();
+
+    // Read and count blocks
+    while (binaryFile.read(block, BLOCK_SIZE) || binaryFile.gcount() != 0) {
+        ++blockCount;
+
+        // Process each record in the block
+        for (int offset = 0; offset < BLOCK_SIZE; offset += sizeof(Record)) {
+            Record record;
+            memcpy(&record, block + offset, sizeof(Record));
+
+            if (record.numVotes == 1000) {
+                // std::cout << "Record with 500 votes found: " << record.tconst << std::endl;
+                recordCount++;
+            }
+        }
+    }
+
+    // Stop measuring time
+    auto endTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> runningTime = endTime - startTime;
+
+    binaryFile.close();
+
+    std::cout << "Experiment 5 Brute force linear scan results" << std::endl;
+    std::cout << "Number of blocks accessed: " << blockCount << std::endl;
+    std::cout << "Number of records = 1000 accessed: " << recordCount << std::endl;
+    std::cout << "Running time: " << runningTime.count() << " milliseconds" << std::endl;
+}
+
 // int main() {
     // const std::string binaryFilename = "disk_storage_18byes_record.bin"; // Replace name with size of byte record
 //     scanBinaryFileExperiment3(binaryFilename);

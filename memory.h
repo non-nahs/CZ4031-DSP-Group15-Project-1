@@ -34,5 +34,6 @@ void showDatabaseStatistics(const std::string& binaryFilename);
 void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsToDisplay);
 void scanBinaryFileExperiment3(const std::string& binaryFilename);
 void scanBinaryFileExperiment4(const std::string& binaryFilename);
+void scanBinaryFileExperiment5(const std::string& binaryFilename);
 
 #endif // DATABASE_H
