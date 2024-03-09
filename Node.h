@@ -40,8 +40,8 @@ public:
     void printKeys();
     int index_inside_node(float k);
     void search(int min, int max);
-    void searchAverageRating(int min, int max, vector<float> &average_rating);
-    bool collectAverageRatings(int min, int max, vector<float> &average_rating);
+    void searchAverageRating(int min, int max, vector<float> &average_rating, int &index_accesses, int &data_accesses);
+    bool collectAverageRatings(int min, int max, vector<float> &average_rating, int &index_accesses, int &data_accesses);
 };
 
 #endif // NODE_H

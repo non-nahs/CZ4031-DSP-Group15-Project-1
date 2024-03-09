@@ -1107,9 +1107,10 @@ void Node::search(int min, int max) {
     }
 }
 
-void Node::searchAverageRating(int min, int max, vector<float> &average_rating) {
+void Node::searchAverageRating(int min, int max, vector<float> &average_rating, int &index_accesses, int &data_accesses) {
+    index_accesses++;
     if (leaf) {
-        if (!collectAverageRatings(min, max, average_rating)) {
+        if (!collectAverageRatings(min, max, average_rating, index_accesses, data_accesses)) {
             cout << "Record not found" << endl;
             return;
         }
@@ -1120,21 +1121,24 @@ void Node::searchAverageRating(int min, int max, vector<float> &average_rating) 
         while (i < num_keys && min >= keys[i]) {
             i++;
         }
-        return child_ptr[i]->searchAverageRating(min, max, average_rating);
+        return child_ptr[i]->searchAverageRating(min, max, average_rating, index_accesses, data_accesses);
     }
 }
 
-bool Node::collectAverageRatings(int min, int max, vector<float> &average_rating) {
+bool Node::collectAverageRatings(int min, int max, vector<float> &average_rating, int &index_accesses, int &data_accesses) {
     bool collected = false;
     for (int i = 0; i < num_keys; i++) {
         if (keys[i] >= min && keys[i] <= max) {
+            data_accesses++;
             average_rating.push_back(record_ptr[i]->averageRating);
             collected = true;
             if (child_ptr[i]) {
+                index_accesses++;
                 Node* cur_node = child_ptr[i];
                 while (cur_node) {
                     for (int j = 0; j < cur_node->num_keys; j++) {
                         average_rating.push_back(record_ptr[i]->averageRating);
+                        data_accesses++;
                     }
                     cur_node = cur_node->ptr2next;
                 }
@@ -1145,6 +1149,6 @@ bool Node::collectAverageRatings(int min, int max, vector<float> &average_rating
     }
     // keep calling next until they return
     if (ptr2next != NULL)
-        collected = (ptr2next->collectAverageRatings(min, max, average_rating) || collected);
+        collected = (ptr2next->collectAverageRatings(min, max, average_rating, index_accesses, data_accesses) || collected);
     return collected;
 }

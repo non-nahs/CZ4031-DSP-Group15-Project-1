@@ -18,7 +18,7 @@ public:
     void insert(float k, Record* rptr);
     void deleteKey(float k);
     void search(int min, int max = -1);
-    vector<float> searchAverageRating(int min, int max = -1);
+    vector<float> searchAverageRating(int &index_accesses, int &data_accesses, int min, int max = -1);
     void printTree();
     int countNodes(Node* node);
     int countLevels(Node* node);

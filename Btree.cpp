@@ -41,10 +41,10 @@ void BTree::search(int min, int max) {
     if (max == -1) max = min;
     root->search(min, max);
 }
-vector<float> BTree::searchAverageRating(int min, int max) {
+vector<float> BTree::searchAverageRating(int &index_accesses, int &data_accesses, int min, int max) {
     if (max == -1) max = min;
     vector<float> average_rating;
-    root->searchAverageRating(min, max, average_rating);
+    root->searchAverageRating(min, max, average_rating, index_accesses, data_accesses);
     return average_rating;
 }
 
