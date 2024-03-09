@@ -44,7 +44,7 @@ int main() {
     cout << "number of index nodes the process accesses: " << endl; // TODO
     cout << "number of data blocks the process accesses: " << endl; // TODO
 
-    // Record the start time
+    // Record the start time of bplus tree search
     auto start = chrono::high_resolution_clock::now();
     vector<float> avg_ratings = bplustree->searchAverageRating(500);
     // Record the end time
@@ -59,7 +59,8 @@ int main() {
 
     cout << "running time of the retrieval process: " << duration.count() << endl;
     cout << "number of data blocks that would be accessed by a brute-force linear scan method: " << endl; // TODO
-
+    scanBinaryFileExperiment3(binaryFilename);
+    scanBinaryFileExperiment4(binaryFilename);
     // experiment 4
     // same as 3 but using a range
 

@@ -11,6 +11,11 @@ struct Record {
     float averageRating;
     int numVotes;
 
+    // Default constructor
+    Record() : averageRating(0), numVotes(0) {
+        tconst[0] = '\0'; // Initialize tconst with an empty string
+    }
+
     Record(const std::string& id, float averageRating, int numVotes);
 };
 
@@ -27,5 +32,7 @@ void writeBlockToFile(const Block& block, const std::string& filename, int block
 void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilename, BTree* bplustree);
 void showDatabaseStatistics(const std::string& binaryFilename);
 void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsToDisplay);
+void scanBinaryFileExperiment3(const std::string& binaryFilename);
+void scanBinaryFileExperiment4(const std::string& binaryFilename);
 
 #endif // DATABASE_H
