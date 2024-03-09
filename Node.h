@@ -48,7 +48,9 @@ public:
     void shift_childptr(Node *currNode, int index);
     void printKeys();
     int index_inside_node(float k);
-    void search(int min, int max = -1);
+    void search(int min, int max);
+    void searchAverageRating(int min, int max, vector<float> &average_rating);
+    bool collectAverageRatings(int min, int max, vector<float> &average_rating);
 };
 
 #endif // NODE_H

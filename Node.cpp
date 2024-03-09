@@ -29,7 +29,7 @@ Node* Node::insertRecord(int k, Record* rptr) {
             if (k == keys[i]) {
                 // key already exists. handle duplicate keys
                 if (!child_ptr[i]) {
-                    Node* overflow_node = new Node(3);
+                    Node* overflow_node = new Node(n);
                     overflow_node->keys.push_back(k);
                     overflow_node->record_ptr.push_back(rptr);
                     overflow_node->num_keys = 1;
@@ -1044,7 +1044,7 @@ void Node::insertDuplicate(int k, Record* rptr) {
         if (ptr2next) 
             ptr2next->insertDuplicate(k, rptr);
         else {
-            Node* new_node = new Node(3);
+            Node* new_node = new Node(n);
             new_node->keys.push_back(k);
             new_node->record_ptr.push_back(rptr);
             new_node->num_keys++;
@@ -1091,8 +1091,26 @@ bool Node::printRecord(int min, int max) {
 
 void Node::search(int min, int max) {
     if (leaf) {
-        if (!printRecord(min, max)) {
+        cout << record_ptr[0]->tconst << endl << endl;
+        // if (!printRecord(min, max)) {
+        //     cout << "Record not found" << endl;
+        // }
+    }
+    
+    else {
+        int i = 0;
+        while (i < num_keys && min >= keys[i]) {
+            i++;
+        }
+        return child_ptr[i]->search(min, max);
+    }
+}
+
+void Node::searchAverageRating(int min, int max, vector<float> &average_rating) {
+    if (leaf) {
+        if (!collectAverageRatings(min, max, average_rating)) {
             cout << "Record not found" << endl;
+            return;
         }
     }
     
@@ -1103,4 +1121,29 @@ void Node::search(int min, int max) {
         }
         return child_ptr[i]->search(min, max);
     }
+}
+
+bool Node::collectAverageRatings(int min, int max, vector<float> &average_rating) {
+    bool collected = false;
+    for (int i = 0; i < num_keys; i++) {
+        if (keys[i] >= min && keys[i] <= max) {
+            average_rating.push_back(record_ptr[i]->averageRating);
+            collected = true;
+            if (child_ptr[i]) {
+                Node* cur_node = child_ptr[i];
+                while (cur_node) {
+                    for (int j = 0; j < cur_node->num_keys; j++) {
+                        average_rating.push_back(record_ptr[i]->averageRating);
+                    }
+                    cur_node = cur_node->ptr2next;
+                }
+            }
+        }
+        else if (keys[i] > max)
+            return collected;
+    }
+    // keep calling next until they return
+    if (ptr2next != NULL)
+        collected = (ptr2next->collectAverageRatings(min, max, average_rating) || collected);
+    return collected;
 }

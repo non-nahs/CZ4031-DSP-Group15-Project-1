@@ -12,13 +12,16 @@ struct Record;
 class BTree {
 public:
     Node* root;
-    int t;
+    int n;
 
     BTree(int _t);
     void insert(float k, Record* rptr);
     void deleteKey(float k);
     void search(int min, int max = -1);
+    vector<float> searchAverageRating(int min, int max = -1);
     void printTree();
+    int countNodes(Node* node);
+    int countLevels(Node* node);
 private:
     void printNode(Node* node, int level, int child_id);
     int countDuplicateKeys(Node* node);

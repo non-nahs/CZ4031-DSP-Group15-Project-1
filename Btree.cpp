@@ -4,6 +4,7 @@ using namespace std;
 
 
 BTree::BTree(int _n) {
+    n = _n;
     root = new Node(_n);
     root->leaf = true;
 }
@@ -12,7 +13,7 @@ void BTree::insert(float k, Record* rptr) {
 	// Function to insert a key in the tree
     Node* new_node = root->insertRecord(k, rptr);
     if (new_node) {
-        Node* new_root = new Node(3);
+        Node* new_root = new Node(n);
         // new_node will always be the bigger node
         new_root->child_ptr.push_back(root);
         new_root->child_ptr.push_back(new_node);
@@ -39,6 +40,12 @@ void BTree::deleteKey(float k)
 void BTree::search(int min, int max) {
     if (max == -1) max = min;
     root->search(min, max);
+}
+vector<float> BTree::searchAverageRating(int min, int max) {
+    if (max == -1) max = min;
+    vector<float> average_rating;
+    root->searchAverageRating(min, max, average_rating);
+    return average_rating;
 }
 
 void BTree::printTree() {
@@ -74,8 +81,65 @@ void BTree::printNode(Node* node, int level, int child_id) {
 
 int BTree::countDuplicateKeys(Node* node) {
     if (node != nullptr) {
+        // recursively add keys in current node
         return node->num_keys + countDuplicateKeys(node->ptr2next);
     }
     else 
+        // terminal case: node does not exist, 0 keys
         return 0;
+}
+
+int BTree::countNodes(Node* node) {
+    if (node != nullptr) {
+        int counter = 0;
+
+        // Recursively count the child nodes
+        if (!node->leaf) {
+            for (int i = 0; i < node->num_keys + 1; ++i) {
+                counter += countNodes(node->child_ptr[i]);
+            }
+            // count current node
+            return counter + 1;
+        }
+        else if (node->leaf) {
+            for (int i = 0; i < node->num_keys; ++i) {
+                // check for overflow nodes
+                if (node->child_ptr[i]) {
+                    Node* cur = node->child_ptr[i];
+                    while (cur) {
+                        counter++;
+                        cur = cur->ptr2next;
+                    }
+                }
+            }
+            // count current leaf node 
+            return counter + 1;
+        }
+    }
+    return 0;
+}
+
+int BTree::countLevels(Node* node) {
+    if (node != nullptr) {
+        // Recursively count the child nodes
+        if (!node->leaf) {
+            return countLevels(node->child_ptr[0]) + 1;
+        }
+        else if (node->leaf) {
+            // check for presence of overflow nodes due to duplicate keys
+            Node* cur = node;
+            while (cur) {
+                for (int i = 0; i < node->num_keys; ++i) {
+                    if (node->child_ptr[i]) {
+                        // leaf level + overflow level
+                        return 2;
+                    }
+                }
+                cur = cur->ptr2next;
+            }  
+            // no duplicate keys
+            return 1;
+        }
+    }
+    return 0;
 }
