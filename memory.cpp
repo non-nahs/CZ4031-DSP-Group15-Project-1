@@ -120,9 +120,10 @@ void showDatabaseStatistics(const std::string& binaryFilename) {
     }
 
     // Displaying the statistics
+    std::cout << "Experiment 1" << std::endl;
     std::cout << "Database Statistics:" << std::endl;
-    std::cout << "Size of a record: " << RECORD_SIZE << " bytes" << std::endl;
     std::cout << "Number of records: " << numberOfRecords << std::endl;
+    std::cout << "Size of a record: " << RECORD_SIZE << " bytes" << std::endl;
     std::cout << "Number of records stored in a block: " << MAX_RECORDS_PER_BLOCK << std::endl;
     std::cout << "Number of blocks for storing the data: " << numberOfBlocks << std::endl;
 }
@@ -144,6 +145,7 @@ void readAndDisplayBinaryFile(const std::string& binaryFilename, int numRecordsT
         for (int i = 0; i < block.recordCount && recordsDisplayed < numRecordsToDisplay; ++i) {
             // Assuming the starting point of each Record is correctly calculated
             Record* record = reinterpret_cast<Record*>(block.data + i * sizeof(Record));
+            std::cout << "Experiment 1" << std::endl;
             std::cout << "Record " << recordsDisplayed + 1 << ": " << std::endl;
             std::cout << "tconst: " << record->tconst << std::endl;
             std::cout << "Average Rating: " << record->averageRating << std::endl;
@@ -179,7 +181,7 @@ void scanBinaryFileExperiment3(const std::string& binaryFilename) {
             memcpy(&record, block + offset, sizeof(Record));
 
             if (record.numVotes == 500) {
-                std::cout << "Record with 500 votes found: " << record.tconst << std::endl;
+                // std::cout << "Record with 500 votes found: " << record.tconst << std::endl;
                 recordCount++;
             }
         }
@@ -191,6 +193,7 @@ void scanBinaryFileExperiment3(const std::string& binaryFilename) {
 
     binaryFile.close();
 
+    std::cout << "Experiment 3 Brute force linear scan results" << std::endl;
     std::cout << "Number of blocks accessed: " << blockCount << std::endl;
     std::cout << "Number of records = 500 accessed: " << recordCount << std::endl;
     std::cout << "Running time: " << runningTime.count() << " milliseconds" << std::endl;
@@ -219,7 +222,7 @@ void scanBinaryFileExperiment4(const std::string& binaryFilename) {
             memcpy(&record, block + offset, sizeof(Record));
 
             if (record.numVotes >= 30000 && record.numVotes <= 40000) {
-                std::cout << "Record between 30k and 40k votes found: " << record.tconst << ", Vote count: " << record.numVotes << std::endl;
+                // std::cout << "Record between 30k and 40k votes found: " << record.tconst << ", Vote count: " << record.numVotes << std::endl;
                 recordCount++;
             }
         }
@@ -231,6 +234,7 @@ void scanBinaryFileExperiment4(const std::string& binaryFilename) {
 
     binaryFile.close();
 
+    std::cout << "Experiment 4 Brute force linear scan results" << std::endl;
     std::cout << "Number of blocks accessed: " << blockCount << std::endl;
     std::cout << "Number of records accessed: " << recordCount << std::endl;
     std::cout << "Running time: " << runningTime.count() << " milliseconds" << std::endl;
