@@ -3,6 +3,7 @@
 #include "Btree.h"
 #include "memory.h"
 using namespace std;
+using namespace std::chrono;
 
 void printTree(BTree* tree) {
     tree->printTree();
@@ -143,52 +144,24 @@ int main() {
 //     // bplustree->search(478);   // For r18
 //     // bplustree->search(20);    // For r19
 //     // bplustree->search(267);   // For r20
-
-//     // // merge with left leaf node
-//     // cout << "-------------------------------------" << endl;
-//     // cout << "First deletion of 262" << endl;
-//     // bplustree->deleteKey(262);
-//     // printTree(bplustree);
-//     // bplustree->deleteKey(154);
-//     // printTree(bplustree);
-//     // bplustree->deleteKey(198);
-//     printTree(bplustree);
-//     // bplustree->deleteKey(198);
-//     // printTree(bplustree);
-//     // bplustree->deleteKey(4599);
-//     // printTree(bplustree);
-//     // bplustree->deleteKey(262);
-//     // printTree(bplustree);
-//     // bplustree->deleteKey(267);
-//     // printTree(bplustree);
-//     // // // // // simple case
-//     // cout << "-------------------------------------" << endl;
-//     // cout << "Second deletion of 198" << endl;
-//     // bplustree->deleteKey(198);
-//     // printTree(bplustree);
-//     // // // borrow from right leaf node
-//     // cout << "-------------------------------------" << endl;
-//     // cout << "Third deletion of 478 " << endl;
-//     // bplustree->deleteKey(478);
-//     // printTree(bplustree);
-//     // // // borrow from right leaf node
-//     // cout << "-------------------------------------" << endl;
-//     // cout << "Fourth deletion of 20 " << endl;
-//     // bplustree->deleteKey(20);
-//     // printTree(bplustree);
-//     // // // borrow from right leaf node
-//     // cout << "-------------------------------------" << endl;
-//     // cout << "Fifth deletion of 120 " << endl;
-//     // bplustree->deleteKey(120);
-//     // printTree(bplustree);
-    
-
-//     // if (bplustree->search(5.6) != NULL) {
-//     //     cout << "Found" << endl;
-//     // } else {
-//     //     cout << "Not found" << endl;
-//     // }
-// >>>>>>> 1f16b7ad04b45707447a9f48c5d807d737387f6f
+    cout << "----------------Deletion of 1000--------------------" << endl;
+    auto start_deletion = high_resolution_clock::now();
+    bplustree->deleteKey(1000);
+    auto stop_deletion = high_resolution_clock::now();
+    auto duration_deletion = duration_cast<microseconds>(stop_deletion - start_deletion);
+    cout << "-----------------After Deletion---------------------" << endl;
+    bplustree->printRoot();
+    cout << "Number of nodes in the updated B+Tree:" << bplustree->countNodes(bplustree->root) << endl;
+    cout << "Number of levels in the updated B+Tree:" << bplustree->countLevels(bplustree->root) << endl;
+    cout << "Time taken for deletion: " << duration_deletion.count() << " microseconds" << endl;
+    cout << "----------Checking whether 1000 has been deleted-----------" << endl;
+    // bplustree->search(1000);
+    //     // if (bplustree->search(5.6) != NULL) {
+    //     //     cout << "Found" << endl;
+    //     // } else {
+    //     //     cout << "Not found" << endl;
+    //     // }
+    // >>>>>>> 1f16b7ad04b45707447a9f48c5d807d737387f6f
 
     return 0;
 }

@@ -22,6 +22,8 @@ public:
     void printTree();
     int countNodes(Node* node);
     int countLevels(Node* node);
+    void printRoot();
+
 private:
     void printNode(Node* node, int level, int child_id);
     int countDuplicateKeys(Node* node);
