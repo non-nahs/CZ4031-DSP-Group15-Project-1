@@ -143,3 +143,16 @@ int BTree::countLevels(Node* node) {
     }
     return 0;
 }
+
+void BTree::printRoot()
+{
+    if (root != nullptr)
+    {
+        cout << "Level " << 0 << ":";
+        for (int i = 0; i < root->num_keys; ++i)
+        {
+            cout << root->keys[i] << " ";
+        }
+        cout << endl;
+    }
+}
