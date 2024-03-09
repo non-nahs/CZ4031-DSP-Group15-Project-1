@@ -7,15 +7,6 @@ using namespace std;
 
 struct Record;
 
-// class Record {
-// public:
-//     string tconst;
-//     float averageRating;
-//     int numVotes;
-
-//     Record(string _tconst, float _averageRating, int _numVotes);
-// };
-
 class Node {
 public:
     int n;

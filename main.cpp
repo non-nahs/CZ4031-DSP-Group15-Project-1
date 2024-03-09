@@ -49,7 +49,7 @@ int main() {
     vector<float> avg_ratings = bplustree->searchAverageRating(500);
     // Record the end time
     auto end = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
 
     float sum = 0;
     for (float avg_rating : avg_ratings) {

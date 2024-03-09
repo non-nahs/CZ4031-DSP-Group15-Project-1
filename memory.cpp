@@ -69,14 +69,14 @@ void loadTSVData(const std::string& tsvFilename, const std::string& binaryFilena
         std::getline(lineStream, token, '\t'); // numVotes
         int numVotes = std::stoi(token);
 
-        Record record(tconst, averageRating, numVotes);
-        if (!block.addRecord(record)) {
+        Record* record = new Record(tconst, averageRating, numVotes);
+        if (!block.addRecord(*record)) {
             writeBlockToFile(block, binaryFilename, blockNum++);
             block.clear();
-            block.addRecord(record); // Add record to the new block
+            block.addRecord(*record); // Add record to the new block
         }
-        /// TODO: insert into b+ tree
-        bplustree->insert(record.numVotes, &record);
+        // insert into b+tree
+        bplustree->insert(record->numVotes, record);
     }
 
     // Write any remaining records to file

@@ -1092,10 +1092,10 @@ bool Node::printRecord(int min, int max) {
 
 void Node::search(int min, int max) {
     if (leaf) {
-        cout << record_ptr[0]->tconst << endl << endl;
-        // if (!printRecord(min, max)) {
-        //     cout << "Record not found" << endl;
-        // }
+        cout << record_ptr[0]->averageRating << endl << endl;
+        if (!printRecord(min, max)) {
+            cout << "Record not found" << endl;
+        }
     }
     
     else {
@@ -1120,7 +1120,7 @@ void Node::searchAverageRating(int min, int max, vector<float> &average_rating) 
         while (i < num_keys && min >= keys[i]) {
             i++;
         }
-        return child_ptr[i]->search(min, max);
+        return child_ptr[i]->searchAverageRating(min, max, average_rating);
     }
 }
 
