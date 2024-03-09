@@ -217,14 +217,16 @@ void Node::delete_duplicate(Node *currNode, int k, int kIndex)
     cout << "over flow node size:" << currNode->child_ptr[kIndex]->num_keys << endl;
     if (!currNode->child_ptr[kIndex]->keys.empty())
     {
-        currNode->child_ptr[kIndex]->keys.erase(currNode->child_ptr[kIndex]->keys.begin());
-        currNode->child_ptr[kIndex]->record_ptr.erase(currNode->child_ptr[kIndex]->record_ptr.begin());
-        // Decrement the number of keys in the overflow node
-        currNode->child_ptr[kIndex]->num_keys--;
-        if (currNode->child_ptr[kIndex]->num_keys == 0)
-        {
-            currNode->child_ptr[kIndex] = NULL;
-        }
+        currNode->child_ptr[kIndex] = NULL;
+
+        // currNode->child_ptr[kIndex]->keys.erase(currNode->child_ptr[kIndex]->keys.begin());
+        // currNode->child_ptr[kIndex]->record_ptr.erase(currNode->child_ptr[kIndex]->record_ptr.begin());
+        // // Decrement the number of keys in the overflow node
+        // currNode->child_ptr[kIndex]->num_keys--;
+        // if (currNode->child_ptr[kIndex]->num_keys == 0)
+        // {
+        //     currNode->child_ptr[kIndex] = NULL;
+        // }
     }
 }
 void Node::adjustSmallest(Node *currNode, float k)
@@ -326,20 +328,19 @@ Node *Node::delete_record(float k, Node *parentNode)
         {
             cout << "index:" << index << endl;
             // check for over flow node, if yes then simply delete the duplicate
-            if (checkOverFlowNode(this, k))
-            {
-                delete_duplicate(this, k, index);
-            }
+            
             // cout << "checkOverFlowNode:" << checkOverFlowNode(this) << endl;
             // If the node is a leaf, simply delete the key
-            else
-            {
+            
+                if (checkOverFlowNode(this, k))
+                {
+                    delete_duplicate(this, k, index);
+                }
                 keys.erase(keys.begin() + index);
                 record_ptr.erase(record_ptr.begin() + index);
                 shift_childptr(this, index);
                 num_keys--;
-                checkOverFlowNode(this, 117);
-            }
+            
             float parentKey = findParentKey(parentNode, this);
             cout << parentKey << endl;
             cout << "parentNode:" << parentNode << endl;
